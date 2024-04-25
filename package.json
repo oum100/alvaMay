@@ -1,0 +1,31 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@quasar/extras": "^1.16.11",
+    "next-auth": "4.21.1",
+    "nuxt": "^3.11.2",
+    "quasar": "^2.15.4",
+    "sass": "^1.75.0",
+    "vue": "^3.4.21",
+    "vue-router": "^4.3.0"
+  },
+  "devDependencies": {
+    "@nuxtjs/google-fonts": "^3.2.0",
+    "@sidebase/nuxt-auth": "^0.7.2",
+    "@types/bcrypt": "^5.0.2",
+    "@types/debug": "^4.1.12",
+    "@types/jsonwebtoken": "^9.0.6",
+    "nuxt-quasar-ui": "^2.0.8",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.2"
+  }
+}
