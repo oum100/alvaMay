@@ -132,6 +132,7 @@
 </template>     
 <script setup  lang="ts">
     import { useQuasar } from "quasar";
+    // import { useAlvatoApi } from "~~/composables/useAlvatoApi";
 
     definePageMeta({
         layout:'partner',
@@ -235,7 +236,7 @@
     //Update user
     const editUser = ref(false)
     let editedData = ref([])
-    async function updateUser(user){
+    async function updateUser(user:any){
         //Set edit flag
         editUser.value = true
 
@@ -254,7 +255,7 @@
     }
 
     const $q = useQuasar()
-    async function resetPass(user){
+    async function resetPass(user:any){
         $q.notify ({
             message: "Do you want to reset password (Default Password) " + user.name ,
             position: "center",
@@ -270,7 +271,7 @@
 
     }
 
-    async function deleteUser(user){
+    async function deleteUser(user:any){
         // console.log("deleteUser at index: ",user.index)
         $q.notify({
             message: "Do you want to delete " + user.name + " ?",
@@ -287,16 +288,16 @@
         })
     }
 
-    async function actionDeleteUser(user){
+    async function actionDeleteUser(user:any){
         console.log("Deleted user: ", user)
     }
 
-    async function actionResetPass(user){
+    async function actionResetPass(user:any){
         console.log("Reset Pass user: ", user)
     }   
 
     const ownerFlag = false
-    function isOwner(udata){
+    function isOwner(udata:any){
         // console.log(user.value?.user?.uuid)
         // console.log(udata.role)
         if(udata.role === 'PARTNER_OWNER'){

@@ -1,9 +1,8 @@
-import {Partner, JSONResponse} from '~~/alvato/misc/types'
+// import {Partner, JSONResponse} from '~~/alvato/misc/types'
 import bcrypt from 'bcrypt'
 
 export default () => {
     return {
-
         getPartnerByUuid,
         createPartner,
         partnerUserList,
@@ -17,7 +16,7 @@ export default () => {
 
 /*============================== Platform Level internal API call =============================*/
 async function getShopByPartner(partnerCode:string){
-    const shops = useFetch('/api/shop/v1.0.0/getAllByPartner',{
+    const shops = await useFetch('/api/shop/v1.0.0/getAllByPartner',{
         query:{
             partnerCode:partnerCode
         }
@@ -26,7 +25,7 @@ async function getShopByPartner(partnerCode:string){
 }
 
 async function getAssetByPartner(partnerCode:string){
-    const assets = useFetch('/api/asset/v1.0.0/getAllByPartner',{
+    const assets = await useFetch('/api/asset/v1.0.0/getAllByPartner',{
         query:{
             partnerCode:partnerCode
         }
@@ -38,7 +37,7 @@ async function getAssetByPartner(partnerCode:string){
 /*============================== Partner API ==============================*/
 // async function getPartnerByUuid(uuid: string): Promise<JSONResponse> {
 async function getPartnerByUuid(uuid: string) {
-    const partner =  useFetch('/api/partner/v1.0.0/getByUuid',{
+    const partner =  await useFetch('/api/partner/v1.0.0/getByUuid',{
         method: 'POST',
         body:{uuid:uuid},
         cache: 'no-cache'
@@ -50,7 +49,7 @@ async function getPartnerByUuid(uuid: string) {
 }
 
 async function createPartner(uuid:string, name:string){
-    const partner = useFetch('/api/partner/v1.0.0/newPartner',{
+    const partner = await useFetch('/api/partner/v1.0.0/newPartner',{
         method:'POST',
         body: {
             uuid:uuid,
@@ -63,20 +62,21 @@ async function createPartner(uuid:string, name:string){
 
 //Partner User API
 async function partnerUserList(partnerCode: string){
-    const users = useFetch('/api/partner/v1.0.0/partnerUserList',{
+    const users = await useFetch('/api/partner/v1.0.0/partnerUserList',{
         method:'POST',
         body:{
             partnerCode:partnerCode
         }
     })
 
+    // return Promise.resolve(users)
     return users
 }
 
 
 async function getRowsCount(filter:string){
     
-    const rowsCount = useFetch('/api/asset/v1.0.0/recordsCount',{
+    const rowsCount = await useFetch('/api/asset/v1.0.0/recordsCount',{
         query:{
             filter:filter
         }
