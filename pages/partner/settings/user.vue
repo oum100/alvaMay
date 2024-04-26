@@ -151,8 +151,6 @@
             field: 'index', 
             align: 'left', 
             sortable: true, 
-            field: row => row.index,
-            format: val => `${val}`,
         },
         {name: 'uuid', label: 'uuid', field: 'uuid' , align: 'left',sortable: false},
         {name: 'email', label: 'Email', field: 'email', align: 'left', sortable: true},

@@ -84,10 +84,10 @@
 
 <script setup lang="ts">
     import { useQuasar } from "quasar";
-    import { PrismaClient } from "@prisma/client";
+    // import { PrismaClient } from "@prisma/client";
 
     const {status,data,signIn} = useAuth()
-    const prisma = new PrismaClient();
+    // const prisma = new PrismaClient();
 
     definePageMeta({
         // middleware: "auth",
