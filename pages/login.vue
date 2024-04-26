@@ -1,62 +1,3 @@
-<script lang="ts" setup>
-    import { ref } from 'vue'
-    import { definePageMeta, useAuth } from '#imports'
-    import { useQuasar } from "quasar";
-    // import { PrismaClient } from "@prisma/client";
-
-    const { signIn, token, data, status, lastRefreshedAt } = useAuth()
-
-    const $q = useQuasar();
-    const email = ref('')
-    const password = ref('')
-    const socialLogin = ref(false)
-    const isPwd = ref(true);
-
-    definePageMeta({
-      auth: {
-          unauthenticatedOnly: true,
-          navigateAuthenticatedTo: '/'
-      }
-    })
-
-    async function handleLogin({email,password}:{email:string, password:string}){
-      const result = await signIn('credentials',{email, password,redirect: false})
-    
-      console.log(result)
-
-      if(result?.error){
-          $q.notify ({
-              message: result?.error,
-              color: "negative",
-              position: "center",
-              icon: "error",
-              timeout: 2500,
-          })
-      } else {
-          //use role to select layout for individual role
-          // console.log("data: ",data.value?.user)
-          // console.log("data Org: ",data.value?.user?.organization)
-          const userOrg = data.value?.user?.organization
-
-          if(userOrg === 'PARTNER'){
-              if(data.value?.user?.partnerCode === null){
-                  navigateTo("/partner/partner",{external:true})
-              }else{
-                  navigateTo("/partner/dashboard",{external:true})
-              }
-          }else if(userOrg === 'SHOP'){    
-              console.log("shop here")
-              navigateTo("/shop/dashboard",{external:true})
-          }else{
-              // navigateTo("/dashboard",{external:true})
-              navigateTo("/",{external:true})
-          }
-      }
-    }
-
-
-</script>
-
 <template>
     <div class="row  items-center justify-center q-my-xl">
         <div class="col-3"></div>
@@ -140,3 +81,63 @@
         <div class="col-3"></div>
     </div>
 </template>
+
+<script setup lang="ts">
+    import { useQuasar } from "quasar";
+    import { PrismaClient } from "@prisma/client";
+
+    const {status,data,signIn} = useAuth()
+    const prisma = new PrismaClient();
+
+    definePageMeta({
+        // middleware: "auth",
+        auth:{
+            unauthenticationOnly:true,
+            navigateAuthenticatedTo: '/'
+        }
+    });    
+
+    const $q = useQuasar();
+   
+    const email = ref('')
+    const password = ref('')
+    const socialLogin = ref(false)
+    const isPwd = ref(true);
+  
+    async function handleLogin({email,password}:{email:string, password:string}){
+        const result = await signIn('credentials',{email, password,redirect: false})
+    
+        console.log(result)
+
+        if(result?.error){
+            $q.notify ({
+                message: result?.error,
+                color: "negative",
+                position: "center",
+                icon: "error",
+                timeout: 2500,
+            })
+        } else {
+            //use role to select layout for individual role
+            // console.log("data: ",data.value?.user)
+            // console.log("data Org: ",data.value?.user?.organization)
+            const userOrg = data.value?.user?.organization
+
+            if(userOrg === 'PARTNER'){
+                if(data.value?.user?.partnerCode === null){
+                    navigateTo("/partner/partner",{external:true})
+                }else{
+                    navigateTo("/partner/dashboard",{external:true})
+                }
+            }else if(userOrg === 'SHOP'){    
+                console.log("shop here")
+                navigateTo("/shop/dashboard",{external:true})
+            }else{
+                navigateTo("/dashboard",{external:true})
+            }
+        }
+    }
+
+
+
+</script>

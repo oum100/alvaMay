@@ -1,0 +1,325 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+enum ROLES {
+  OWNER
+  MANAGER
+  ADMIN
+  STAFF
+}
+
+enum ORGS {
+  PLATFORM
+  PARTNER
+  SHOP
+}
+model Partners {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  partnerCode String    @unique
+  partnerName String
+  partnerLogo String?
+  appKey      String
+  appSecret   String
+  shops       Shops[]
+  users       Users[]
+  assets      Assets[]
+  configs     Configs[]
+  products    Products[]
+  machines    Machines[]
+  createdAt   DateTime  @default(now()) @db.Date
+  updatedAt   DateTime? @default(now()) @db.Date
+}
+model Users {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  uuid          String        @unique(map: "uuid")
+  email         String        @unique(map: "email")
+  name          String
+  password      String
+  emailVerified Boolean       @default(false)
+  isActive      Boolean       @default(true)
+  image         String?
+  organization  ORGS          @default(PARTNER) //organizeation default is PARTNER
+  role          ROLES         @default(OWNER)//@default(OWNER)
+  permission    String        @default("CRUD")
+  profile       Profiles?
+  partner       Partners?     @relation(fields: [partnerCode], references: [partnerCode])
+  partnerCode   String?
+  shop          Shops[]
+  createdAt     DateTime      @default(now()) @db.Date
+  updatedAt     DateTime      @default(now()) @db.Date
+}
+
+model Profiles {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  idCard      String? // ID Card or Passport
+  firstName   String
+  lastName    String?
+  firstNameTH String?
+  lastNameTH  String?
+  gender      GENDERS?  @default(MALE)
+  birthday    DateTime?
+  mobile      String?
+  lineUID     String?
+  facebook    String?
+  address     Address[]
+  user        Users?    @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
+  uuid        String    @unique
+  createdAt   DateTime  @default(now()) @db.Date
+  updatedAt   DateTime  @default(now()) @db.Date
+}
+
+model Address {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  address1    String
+  address2    String?
+  subDistrict String
+  district    String
+  province    String
+  zipCode     String
+  country     String
+  profile     Profiles? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profileId   String    @unique @db.ObjectId
+  createdAt   DateTime  @default(now()) @db.Date
+  updatedAt   DateTime? @default(now()) @db.Date
+}
+
+enum GENDERS {
+  MALE
+  FMALE
+}
+
+
+model Shops {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopCode      String    @unique
+  shopName      String
+  description   String?
+  assets        Assets[]
+  user          Users?    @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
+  uuid          String?    
+  partner       Partners? @relation(fields: [partnerCode], references: [partnerCode])
+  partnerCode   String 
+  createdAt     DateTime  @default(now()) @db.Date
+  updatedAt     DateTime? @default(now()) @db.Date
+} 
+
+model Assets {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  assetCode     String    @unique
+  assetName     String?
+  assetType     String?
+  assetStatus   String
+  partner       Partners? @relation(fields: [partnerCode], references: [partnerCode])
+  partnerCode   String?  
+  shop          Shops?    @relation(fields: [shopCode], references: [shopCode], onDelete: Cascade)
+  shopCode      String?    
+  device        Devices?
+  machine       Machines?
+  product       Products[]
+  // An asset can have the same configuration as other asset.
+  config        Configs @relation(fields: [configCode], references: [configCode])
+  configCode    String
+  createdAt     DateTime    @default(now()) @db.Date
+  updatedAt     DateTime?   @default(now()) @db.Date
+} 
+
+model Devices {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  deviceName    String?
+  deviceMac     String      @unique
+  deviceType    String?
+  board         String?
+  deviceStatus  String
+  firmware    String?
+  replaceBy   String?     // new deviceMac
+  replacedAt  DateTime?   @db.Date
+  asset       Assets      @relation(fields: [assetCode], references: [assetCode])
+  assetCode   String      @unique
+  createdAt   DateTime    @default(now()) @db.Date
+  updatedAt   DateTime?   @default(now()) @db.Date
+} 
+
+model Machines {
+  id            String        @id @default(auto()) @map("_id") @db.ObjectId
+  serailNumber  String        @unique
+  name          String
+  description   String?
+  type          String
+  model         String
+  status        String
+  orderAt       DateTime?     @db.Date
+  expiredAt     DateTime?     @db.Date
+  asset         Assets?       @relation(fields: [assetCode], references: [assetCode])
+  assetCode     String?       @unique
+  partner       Partners?   @relation(fields: [partnerCode], references:[partnerCode], onDelete: Cascade, onUpdate: Cascade)
+  partnerCode   String    
+  createdAt     DateTime      @default(now()) @db.Date
+  updatedAt     DateTime?     @default(now()) @db.Date  
+} 
+
+model Products{
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  sku           String      @unique
+  name          String      //display name
+  shortName     String?
+  description   String?
+  groupName     String?
+  price         Int
+  qty           Int
+  unit          String
+  asset         Assets?     @relation(fields: [assetCode], references: [assetCode])
+  assetCode     String?     
+  partner       Partners?   @relation(fields: [partnerCode], references:[partnerCode], onDelete: Cascade, onUpdate: Cascade)
+  partnerCode   String    
+  createdAt     DateTime    @default(now()) @db.Date
+  updatedAt     DateTime?   @default(now()) @db.Date  
+}
+model Configs {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  configCode    String      @unique
+  name          String
+  description   String?
+  assets        Assets[]
+  partner       Partners?   @relation(fields: [partnerCode], references:[partnerCode], onDelete: Cascade, onUpdate: Cascade)
+  partnerCode   String      
+  host            Hosts[]
+  wifi            Wifis[]
+  mqtt            Mqtts[]
+  createdAt       DateTime    @default(now()) @db.Date
+  updatedAt       DateTime?   @default(now()) @db.Date  
+}
+
+model Hosts {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  apiHost       String      //hostname or ip address
+  apiPort       String      //
+  apiPath       String
+  hostName      String?
+  hostPort      String?
+  hostPath      String?
+  // config        Configs[]
+  config        Configs?     @relation(fields: [configCode], references: [configCode],onDelete: Cascade, onUpdate: Cascade)
+  configCode    String?     
+  createdAt     DateTime    @default(now()) @db.Date
+  updatedAt     DateTime?   @default(now()) @db.Date   
+}
+
+model Wifis {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  ssid          String      
+  ssidPass      String
+  // config        Configs[]
+  config        Configs?     @relation(fields: [configCode], references: [configCode], onDelete: Cascade, onUpdate: Cascade)
+  configCode    String?     
+  createdAt     DateTime    @default(now()) @db.Date
+  updatedAt     DateTime?   @default(now()) @db.Date   
+}
+
+model Mqtts {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  mqttHost      String
+  mqttPort      String
+  mqttUser      String
+  mqttPass      String
+  pubTopic      String
+  subTopic      String  
+  // config        Configs[]
+  config        Configs?     @relation(fields: [configCode], references: [configCode], onDelete: Cascade, onUpdate: Cascade)
+  configCode    String?     
+  createdAt     DateTime    @default(now()) @db.Date
+  updatedAt     DateTime?   @default(now()) @db.Date   
+}
+
+model Transactions {
+  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
+  partnerCode         String
+  shopCode            String
+  assetCode           String
+  qrGenID             String
+  paymentId           String     //notification ID
+  paymentBy           String
+  wallet              String
+  paymentType         String
+  transRef            String    
+  transDate           String
+  amount              Float
+  status              String
+  inProgress          String
+  createdAt           DateTime    @default(now()) @db.Date
+  updatedAt           DateTime?   @default(now()) @db.Date   
+}
+
+
+
+model Provinces {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  nameEn    String
+  nameTh    String
+  district  Districts[]
+  createdAt DateTime    @default(now()) @db.Date
+  updatedAt DateTime    @default(now()) @db.Date
+}
+
+model Districts {
+  id          String         @id @default(auto()) @map("_id") @db.ObjectId
+  province    Provinces?     @relation(fields: [provinceId], references: [id], onDelete: Cascade)
+  provinceId  String         @unique @db.ObjectId
+  nameEn      String
+  nameTh      String
+  subDistrict SubDistricts[]
+  createdAt   DateTime       @default(now()) @db.Date
+  updatedAt   DateTime       @default(now()) @db.Date
+}
+
+model SubDistricts {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  district   Districts? @relation(fields: [districtId], references: [id], onDelete: Cascade)
+  districtId String     @unique @db.ObjectId
+  nameEn     String
+  nameTh     String
+  createdAt  DateTime   @default(now()) @db.Date
+  updatedAt  DateTime   @default(now()) @db.Date
+}
+
+model SCBPaymentNotify {
+  id                     String  @id @default(auto()) @map("_id") @db.ObjectId
+  amount                 String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
+  transactionId          String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
+  transactionDateandTime String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
+  currencyCode           String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
+  transactionType        String? //BP    CCFA  CCIPP  QRCS  
+  channelCode            String? //BP    CCFA  CCIPP  QRCS
+  billPaymentRef1        String? //BP    CCFA
+  billPaymentRef2        String? //BP    CCFA
+  billPaymentRef3        String? //BP    CCFA
+  payeeProxyId           String? //BP
+  payeeProxyType         String? //BP
+  payeeAccountNumber     String? //BP
+  payerAccountNumber     String? //BP
+  payerName              String? //BP                        AliPay  WeChatPay
+  sendingBankCode        String? //BP
+  recevingBangCode       String? //BP
+  consumerPAN            String? //      CCFA
+  merchantPAN            String? //                    QRCS
+  traceNo                String? //      CCFA  CCIPP   QRCS
+  terminalId             String? //      CCFA  CCIPP   QRCS  Alipay  WeChatPay
+  merchantId             String? //      CCFA  CCIPP   QRCS  Alipay  WeChatPay
+  authorizeCode          String? //      CCFA  CCIPP   QRCS
+  paymentMethod          String? //      CCFA  CCIPP   QRCS
+  tenor                  String? //            CCIPP
+  ippType                String? //            CCIPP   
+  productCode            String? //            CCIPP
+  qrId                   String? //                    QRCS
+  invoice                String? //                    QRCS
+  note                   String? //                    QRCS
+  exchangeRate           String? //                          Alipay    WeChatPay
+  equivalentAmount       String? //                          Alipay    WeChatPay
+  equivalentCurrencyCode String? //                          Alipay    WeChatPay
+  companyId              String? //                          Alipay    WeChatPay
+}

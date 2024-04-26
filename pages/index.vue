@@ -1,49 +1,46 @@
-<script setup lang="ts">
-import { tiUser } from '@quasar/extras/themify';
+<script setup lang = "ts">
+    import Github from 'next-auth/providers/github';
 
-    // import { definePageMeta } from '#imports'
-    const {data,signOut} = useAuth()
-    const isLoggedIn = data.value?.user?true:false
+    const {status, data, signIn, signOut} = useAuth()
+    const loggedIn = computed(() => status.value === 'authenticated')
 
-    definePageMeta({ auth: false })
+    definePageMeta({
+        // middleware: "auth",
+        auth:{
+            unauthenticationOnly:true,
+            navigateAuthenticatedTo: '/backend'
+        }
+    });   
+
+    // const {data} = await useFetch('/api/me')
+
+    async function handleSignIn(){
+        await signIn(undefined, { callbackUrl: '/backend' })
+    }
+
+    async function handleSignOut(){
+        await signOut()
+    }
+
     
 </script>
 
+
 <template>
-  <div v-if="isLoggedIn">
-    <div> This is user logged in data</div>
-    {{ data }}<br>
-  </div>
-  <div>
-    <nuxt-link to="/login">
-      -> manual login, logout, refresh button
-    </nuxt-link>
-    <br>
-    <nuxt-link to="/protected/globally">
-      -> globally protected page
-    </nuxt-link>
-    <br>
-    <nuxt-link to="/protected/locally">
-      -> locally protected page (only works if global middleware disabled)
-    </nuxt-link>
-    <br>
-    <nuxt-link to="/always-unprotected">
-      -> page that is always unprotected
-    </nuxt-link>
-    <br>
-    <nuxt-link to="/guest">
-      -> guest mode
-    </nuxt-link>
-    <br>
-    <nuxt-link to="/with-caching">
-      -> cached page with swr
-    </nuxt-link>
-    <br>
-    <br>
-    <button @click="signOut({ callbackUrl: '/signout' })">
-        sign out
-      </button>
-    <br>
-    <div>select one of the above actions to get started.</div>
-  </div>
+  
+    <div class="text-h4 q-pa-md">
+        <div class="row justify-center">
+            <h3>Welcome to Alvato-Auth</h3>
+        </div>
+        <div class="text-center">
+            <img src="/images/alvato/underConstruction.jpeg"/>
+        </div>
+    </div>
+    <!-- <div>{{ data }}</div> -->
+
+    <!-- <div class="row justify-center q-mx-md">
+        <button v-if="loggedIn" @click="handleSignOut">Sign Out</button>
+        <button v-else @click="handleSignIn">Sign In</button>
+    </div> -->
+    
 </template>

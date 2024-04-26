@@ -1,3 +1,151 @@
+import {NuxtAuthHandler}from '#auth'
+import GithubProvider from 'next-auth/providers/github'
+import twitchProvider from 'next-auth/providers/twitch'
+import GoogleProvider from 'next-auth/providers/google'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { PrismaClient } from "@prisma/client";
+import bcrypt  from 'bcrypt'
+// import {alvatoStore} from '@/stores/alvatoStore'
+import argon2 from 'argon2'
+
+
+const prisma = new PrismaClient();
+
+export default NuxtAuthHandler({
+    secret: useRuntimeConfig().AUTH_SECRET,
+
+    pages:{
+        signIn: "/login",
+        
+    //     // signOut: { path: '/logout', method: 'post'},
+    //     // signUp: { path: '/logout', method: 'post'},
+    //     // refresh: { path: '/logout', method: 'post'},
+    //    // error: "/auth/error"
+    //    verifyRequest:  "/auth/verify-request"
+        // newUser: "/register"
+
+    },
+
+    providers:[
+        //@ts-expect-error
+        GithubProvider.default({
+           clientId:  useRuntimeConfig().public.GITHUB_CLIENT_ID,
+           clientSecret: useRuntimeConfig().GITHUB_CLIENT_SECRET
+        }),
+
+    //    //@ts-expect-error
+    //     twitchProvider.default({
+    //         clientId:  useRuntimeConfig().public.TWITCH_CLIENT_ID,
+    //         clientSecret: useRuntimeConfig().TWITCH_CLIENT_SECRET
+    //     }),
+
+        //@ts-expect-error
+        CredentialsProvider.default({
+            name: 'credentials',
+            credentials: {},
+            async authorize(credentials:{email:string, password:string}){
+                //below user is for test only
+                const userInfo = await prisma.users.findUnique({
+                    where:{
+                        email:credentials.email,
+                    },
+                    include:{
+                        partner:true,
+                        shop:true
+                    }
+                    // select:{
+                    //     name:true,
+                    //     email:true,
+                    //     password:true,
+                    //     image:true,    
+                    //     isActive:true,
+                    //     organize:true,
+                    //     role:true,
+                    //     permission:true,
+                    //     partnerCode: true,      
+                    // }
+                })
+                
+
+                if(!userInfo){
+                    throw createError({
+                        statusCode:401, 
+                        statusMessage: "User not found."
+                    })
+                }
+
+                // const isValid = await bcrypt.compare(credentials.password,user.password)
+                const isValid = await argon2.verify(userInfo.password,credentials.password)
+
+                if(!isValid){
+                    throw createError({
+                        statusCode:401, 
+                        statusMessage: "Unauthorized"
+                    })
+                }
+
+                console.log("UserInfo: ",userInfo)
+                // const user = userInfo
+                const user = {
+                    name: userInfo.name,
+                    email: userInfo.email,
+                    image: userInfo.image,
+                    isActive: userInfo.isActive,
+                    organization: userInfo.organization,
+                    role: userInfo.role,
+                    permission: userInfo.permission,
+                    partnerCode: userInfo.partnerCode,
+                    // partnerName: userInfo.partner?.partnerName
+                }
+
+                return {
+                    ...user,
+                    password:undefined
+                }
+            }
+        })
+    ],
+
+    session:{
+        strategy:"jwt",
+    },
+
+
+    callbacks:{
+        async jwt({token,user,account,profile}){
+            // console.log('Token Before: ',token)
+            // console.log("Account: ",account)
+            // console.log("Profile: ",profile)
+            if(user){
+                // console.log("jwt callback: ",user)
+                token = {
+                    ...token,
+                    ...user
+                }
+            }
+            // console.log('Token After: ',token)
+            return token
+        },
+
+        async session({session,token}){
+            // console.log('Session Before: ',session)
+            session.user = {
+                ...token,
+                ...session.user,
+            }
+            // console.log('Session After: ',session)
+            return session
+        },
+    },
+    
+})
+
+
+
+
+
+
+/*
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GithubProvider from 'next-auth/providers/github'
 import { NuxtAuthHandler } from '#auth'
@@ -107,3 +255,5 @@ export default NuxtAuthHandler({
         },
     }
 })
+
+*/
