@@ -1,4 +1,4 @@
-/*
+
 import {NuxtAuthHandler}from '#auth'
 import GithubProvider from 'next-auth/providers/github'
 import twitchProvider from 'next-auth/providers/twitch'
@@ -140,13 +140,13 @@ export default NuxtAuthHandler({
     },
     
 })
-*/
 
 
 
 
 
 
+/*
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GithubProvider from 'next-auth/providers/github'
 import { NuxtAuthHandler } from '#auth'
@@ -326,4 +326,4 @@ export default NuxtAuthHandler({
         },
     }
 })
-
+*/
