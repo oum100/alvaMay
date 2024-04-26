@@ -150,9 +150,10 @@ export default NuxtAuthHandler({
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GithubProvider from 'next-auth/providers/github'
 import { NuxtAuthHandler } from '#auth'
-// import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import argon2 from 'argon2'
 
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
 export default NuxtAuthHandler({
     secret: useRuntimeConfig().AUTH_SECRET,
@@ -168,53 +169,122 @@ export default NuxtAuthHandler({
             clientSecret: useRuntimeConfig().GITHUB_CLIENT_SECRET
         }),
 
+        
         //@ts-expect-error
-        CredentialsProvider.default({
-            // The name to display on the sign in form (e.g. 'Sign in with...')
-            name: 'Credentials',
-            // The credentials is used to generate a suitable form on the sign in page.
-            // You can specify whatever fields you are expecting to be submitted.
-            // e.g. domain, username, password, 2FA token, etc.
-            // You can pass any HTML attribute to the <input> tag through the object.
-            credentials: {
-                // username: { label: 'Email', type: 'email', placeholder: '(hint: jsmith@gmail.com)' },
-                // password: { label: 'Password', type: 'password', placeholder: '(hint: hunter2)' }
-            },
-
-            authorize (credentials:{email:string, password:string}) {
-                // You need to provide your own logic here that takes the credentials
-                // submitted and returns either a object representing a user or value
-                // that is false/null if the credentials are invalid.
-                // NOTE: THE BELOW LOGIC IS NOT SAFE OR PROPER FOR AUTHENTICATION!
         
-                const userInfo = { id: '1', name: 'J Smith', email: 'jsmith@gmail.com', password: 'hunter2',role:'admin' }
-        
-                if (credentials?.email === userInfo.email && credentials?.password === userInfo.password) {
-                    // Any object returned will be saved in `user` property of the JWT
-                    // console.log(user)
-                    const user = {
-                        id:userInfo.id,
-                        name:userInfo.name,
-                        email: userInfo.email,
-                        role: userInfo.role
-                    }
+        // CredentialsProvider.default({
+        //     // The name to display on the sign in form (e.g. 'Sign in with...')
+        //     name: 'Credentials',
+        //     // The credentials is used to generate a suitable form on the sign in page.
+        //     // You can specify whatever fields you are expecting to be submitted.
+        //     // e.g. domain, username, password, 2FA token, etc.
+        //     // You can pass any HTML attribute to the <input> tag through the object.
+        //     credentials: {
+        //         // username: { label: 'Email', type: 'email', placeholder: '(hint: jsmith@gmail.com)' },
+        //         // password: { label: 'Password', type: 'password', placeholder: '(hint: hunter2)' }
+        //     },
 
-                    // return user
-                    return Promise.resolve(user)
+        //     authorize (credentials:{email:string, password:string}) {
+        //         // You need to provide your own logic here that takes the credentials
+        //         // submitted and returns either a object representing a user or value
+        //         // that is false/null if the credentials are invalid.
+        //         // NOTE: THE BELOW LOGIC IS NOT SAFE OR PROPER FOR AUTHENTICATION!
+        
+        //         const userInfo = { id: '1', name: 'J Smith', email: 'jsmith@gmail.com', password: 'hunter2',role:'admin' }
+        
+        //         if (credentials?.email === userInfo.email && credentials?.password === userInfo.password) {
+        //             // Any object returned will be saved in `user` property of the JWT
+        //             // console.log(user)
+        //             const user = {
+        //                 id:userInfo.id,
+        //                 name:userInfo.name,
+        //                 email: userInfo.email,
+        //                 role: userInfo.role
+        //             }
+
+        //             // return user
+        //             return Promise.resolve(user)
                         
                     
-                } else {
-                    console.error('Warning: Malicious login attempt registered, bad credentials provided')
+        //         } else {
+        //             console.error('Warning: Malicious login attempt registered, bad credentials provided')
             
-                    // If you return null then an error will be displayed advising the user to check their details.
-                    return null
+        //             // If you return null then an error will be displayed advising the user to check their details.
+        //             return null
             
-                    // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-                }
-            }
+        //             // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
+        //         }
+        //     }
 
             
-        }),
+        // }),
+
+        CredentialsProvider.default({
+            name: 'credentials',
+            credentials: {},
+            async authorize(credentials:{email:string, password:string}){
+                //below user is for test only
+                const userInfo = await prisma.users.findUnique({
+                    where:{
+                        email:credentials.email,
+                    },
+                    include:{
+                        partner:true,
+                        shop:true
+                    }
+                    // select:{
+                    //     name:true,
+                    //     email:true,
+                    //     password:true,
+                    //     image:true,    
+                    //     isActive:true,
+                    //     organize:true,
+                    //     role:true,
+                    //     permission:true,
+                    //     partnerCode: true,      
+                    // }
+                })
+                
+
+                if(!userInfo){
+                    throw createError({
+                        statusCode:401, 
+                        statusMessage: "User not found."
+                    })
+                }
+
+                // const isValid = await bcrypt.compare(credentials.password,user.password)
+                const isValid = await argon2.verify(userInfo.password,credentials.password)
+
+                if(!isValid){
+                    throw createError({
+                        statusCode:401, 
+                        statusMessage: "Unauthorized"
+                    })
+                }
+
+                console.log("UserInfo: ",userInfo)
+                // const user = userInfo
+                const user = {
+                    name: userInfo.name,
+                    email: userInfo.email,
+                    image: userInfo.image,
+                    isActive: userInfo.isActive,
+                    organization: userInfo.organization,
+                    role: userInfo.role,
+                    permission: userInfo.permission,
+                    partnerCode: userInfo.partnerCode,
+                    // partnerName: userInfo.partner?.partnerName
+                }
+
+                return {
+                    ...user,
+                    password:undefined
+                }
+            }
+        })
+
+        
     ],
 
     session:{
