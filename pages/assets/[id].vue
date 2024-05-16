@@ -100,17 +100,17 @@
       
       //Define columns to display on screen
       const columns = [
-        {name: 'index', label: 'No', field: 'index', align: 'left', sortable: true},
-        {name: 'partnerName', label: 'Partner Name', field: 'partnerName', align: 'left', sortable: true},
-        {name: 'shopName', label: 'Shop Name', field: 'shopName', align: 'left', sortable: true},
-        {name: 'assetName', label: 'Asset Name', field: 'assetName', align: 'left', sortable: true},
-        {name: 'assetCode', label: 'Asset Code', field: 'assetCode' , align: 'left',sortable: false},
-        {name: 'assetType', label: 'AssetType', field: 'assetType', align: 'left', sortable: true},
-        {name: 'assetStatus', label: 'Status', field: 'assetStatus', align: 'left', sortable: true},
-        {name: 'config', label: 'Config', field: 'configCode', align: 'left', sortable: false},
-        {name: 'product', label: 'Products', field: 'productSKU' ,align: 'left', sortable: false },
-        // {name: 'updatedAt', label: 'Last Update', field: 'updatedAt', align: 'left', sortable: false},
-        {name: 'actions', label: 'Actions', field: 'actions', align: 'center', sortable: false}
+        {name: 'index', label: 'No', field: 'index', align: 'left', sortable: true, style: 'width: 10px'},
+        {name: 'partnerName', label: 'Partner Name', field: 'partnerName', align: 'left', sortable: true, style: 'width: 30px'},
+        {name: 'shopName', label: 'Shop Name', field: 'shopName', align: 'left', sortable: true, style: 'width: 30px'},
+        {name: 'assetName', label: 'Asset Name', field: 'assetName', align: 'left', sortable: true, style: 'width: 30px'},
+        {name: 'assetCode', label: 'Asset Code', field: 'assetCode' , align: 'left',sortable: false, style: 'width: 30px'},
+        {name: 'assetType', label: 'AssetType', field: 'assetType', align: 'left', sortable: true, style: 'width: 30px'},
+        {name: 'assetStatus', label: 'Status', field: 'assetStatus', align: 'left', sortable: true, style: 'width: 30px'},
+        {name: 'config', label: 'Config', field: 'configCode', align: 'left', sortable: false, style: 'width: 30px'},
+        {name: 'product', label: 'Products', field: 'productSKU' ,align: 'left', sortable: false , style: 'width: 30px'},
+        // {name: 'updatedAt', label: 'Last Update', field: 'updatedAt', align: 'left', sortable: false, style: 'width: 30px'},
+        {name: 'actions', label: 'Actions', field: 'actions', align: 'center', sortable: false, style: 'width: 30px'}
       ]
   
   

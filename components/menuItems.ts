@@ -65,7 +65,7 @@ export default [
     },
     {
       title: "Users",
-      to: "/users",
+      to: "/users/0",
       icon:"memory",
       separator:false,
       children:[]

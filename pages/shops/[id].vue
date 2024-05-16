@@ -176,6 +176,7 @@
 
         //Fetch from srver
         // const {data:dataTable} = await useFetch('/api/asset/v1.0.0/getAll')
+        loading.value = true
         const {data:dataTable} = await $fetch('/api/shop/v1.0.0/listByPagination',{
             method:'POST',
             body: {
@@ -205,6 +206,7 @@
             row.email = row.user?.email
             row.asset = row._count.assets
         })  
+        loading.value = false
     }
 
     async function updateInfo(){
