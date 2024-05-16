@@ -1,49 +1,54 @@
 <template>
   <!-- {{ data }} -->
   <div class="q-pa-md">
-    <q-stepper
+      <q-stepper v-if="hide"
       v-model="step"
       ref="stepper"
       done-color="primary"
-      active-color="primary"
+      active-color="purple"
       inactive-color="grey-8"
       animated
+      class="bg-blue-1"
     >
       <q-step
         :name="1"
-        title="Step 1. New Partner"
+        title="Step 1. New Partner "
+        caption="(สร้างแบรนด์)"
         icon="settings"
         :done="step > 1"
         class="text-subtitle1"
       >
-        1. สร้าง Partner เพื่อใช้เป็นชื่ออ้างอิงและเก็บข้อมูลกับแพลตฟอร์ม  แพลตฟอร์มจะสร้าง appKey และ appSecret 
-        สำหรับนำไปใช้ในการพัฒนา Asset นำมาใช้งานกับแพลตฟอร์ม 
+        1. สร้าง Partner (แบรนด์) เพื่อใช้เป็นชื่ออ้างอิงสำหรับบันทึกข้อมูลกับแพลตฟอร์ม แพลตฟอร์มจะสร้าง appKey และ appSecret 
+        <br>สำหรับนำไปใช้ในการพัฒนา Asset ให้สื่อสารร่วมกับแพลตฟอร์มได้
       </q-step>
 
       <q-step
         :name="2"
         title="Step 2. Register Asset"
-        caption="(สร้าง Code ให้ MCU)"
+        caption="(นำไปพัฒนา Embbeded Code ให้ MCU)"
         icon="create_new_folder"
         :done="step > 2"
         class="text-subtitle1"
       >
-        2. ทำการรีจิสเตอร์​ Asset ด้วย appKey และ appSecret (ที่ได้จาก step 1) เพื่อให้เชื่อมต่อ บันทึก และควมคุม ร่วมกับแพลตฟอร์มได้  
+        2. ทำการรีจิสเตอร์​ Asset โดยนำ appKey และ appSecret (ที่ได้จาก step 1) ใส่ไว้ใน code ของ Asset 
+        <br> และให้ Asset เรียกใช้ Register API เพื่อทำการรีจีสเตอร์ แล้วบันทึกข้อมูลที่ได้จาก API เพื่อให้ Asset นีั้นๆสื่อสารกับแพลตฟอร์มได้  
       </q-step>
 
       <q-step
         :name="3"
         title="Step 3. New Shop"
+        caption="(สร้าง Shop เพื่อการจัดกลุ่ม Asset)"
         icon="assignment"
         :done="step > 3"
         class="text-subtitle1"
       >
-        3. สร้าง Shop หรือร้านค้าซึ่งนำ Asset ไปใช้งาน
+        3. ทำการสร้าง Shop หรือร้านค้าเป็นการจัดกลุ่มของ Asset (ที่รีจีสเตอร์แล้ว) เป็นกลุ่มไว้ตามร้านค้า เพื่อบันทึกข้อมูลแยกตามร้่านค้าได้
       </q-step>
 
       <q-step
         :name="4"
         title="Step 4.Assign assets to shop"
+        caption="(กำหนดให้ Asset เป็นของร้านค้า)"
         icon="add_comment"
         class="text-subtitle1"
       >
@@ -53,13 +58,14 @@
 
       <template v-slot:navigation>
         <q-stepper-navigation>
-          <q-btn @click="onNext($refs.stepper)" color="primary" :label="step === 4 ? 'Finish' : 'Next'" />
           <q-btn v-if="step > 1" flat color="primary" @click="onBack($refs.stepper)" label="Back" class="q-ml-sm" />
+          <q-btn @click="onNext($refs.stepper)" color="primary" :label="step === 4 ? 'Finish' : 'Next'" class="q-mx-md"/>
         </q-stepper-navigation>
       </template>
-    </q-stepper>
+      </q-stepper>
   </div>
 
+  <q-btn @click="handleHide" class="q-mx-md">{{ hideBtn }}</q-btn>
   <div v-if="step === 1">
     <div class="row flex-center q-my-md">
         <div v-if="newPartner" >
@@ -109,7 +115,7 @@
           
     </div>
     <div v-else class = "row justify-center">
-        <q-card flat class="q-mx-xl" style="width:700px; height:80%; max-height: 40vh; " >
+        <q-card flat class="q-mx-xl" style="width:900px; height:80%; max-height: 40vh; " >
             <q-card-section class=" bg-primary text-white">
               <q-item>
                 <q-item-section>
@@ -255,15 +261,17 @@
 
   <div v-if="step === 2">
     <div class="text-h6 text-center q-my-md">
-      เนื่องจากคุณเป็นผู้ใช้ใหม่ จึงต้องสร้างคุณเป็น partner เป็นอันดับแรก
-    </div>
-    <div class="text-h6 text-center q-my-md">
-      Because you are a new user Therefore, we must create you as a partner first.
-    </div>   
+
+    </div>  
+    <!-- <div class="text-body1 text-center q-my-md">
+      URL: https://&lt;hostname&gt;/api/v1.0.0/register
+    </div> -->
+    <!-- <ShowRegister/> -->
+    <ShowEditor/>
   </div>
 
   <div v-if="step === 3">
-
+    <NewShop/>
   </div>
 
   <div v-if="step === 4">
@@ -272,6 +280,8 @@
 </template>
 
 <script setup lang = "ts">
+import { flattenDiagnosticMessageText } from 'typescript';
+
     definePageMeta({
         layout:'partner',
         // middleware: "auth",
@@ -283,6 +293,8 @@
   
     const {data} = useAuth()
     const step = ref(1)
+    const hide = ref(true)
+    const hideBtn = ref("Hide The Guide")
 
     const $q = useQuasar();
     const newBtn = ref(false)
@@ -306,6 +318,9 @@
     const fotosURL = ref([])
 
     const {getPartnerByUuid, createPartner} = useAlvatoApi()
+
+    // console.log("user data:",data.value?.user)
+
     const {data:dataTable,status} = await getPartnerByUuid(data.value?.user?.uuid)
     console.log("partner: ",dataTable.value?.data)
 
@@ -319,6 +334,8 @@
     }else{
       newPartner.value = true
     }
+
+    partnerCode.value = data.value?.user?.partnerCode
   
     // const {data:partner,status} = await getPartnerByUuid(data.value?.user?.uuid)
     // console.log(partner)
@@ -416,6 +433,11 @@
       editPartnerLogo.value = false
       partnerName.value = partnerName_before.value
       partnerLogo.value = partnerLogo_before.value
+    }
+
+    async function handleHide(){
+      hide.value = !hide.value as boolean
+      (hide.value)?hideBtn.value="Hidden the Guide":hideBtn.value="Show the Guide"
     }
 
 </script>

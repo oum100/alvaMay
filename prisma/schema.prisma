@@ -19,6 +19,7 @@ enum ORGS {
   PARTNER
   SHOP
 }
+
 model Partners {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   partnerCode String    @unique
@@ -35,6 +36,7 @@ model Partners {
   createdAt   DateTime  @default(now()) @db.Date
   updatedAt   DateTime? @default(now()) @db.Date
 }
+
 model Users {
   id            String        @id @default(auto()) @map("_id") @db.ObjectId
   uuid          String        @unique(map: "uuid")

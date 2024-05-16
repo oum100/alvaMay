@@ -16,7 +16,7 @@ export default [
     },
     {
       title: "Shops",
-      to: "/shops",
+      to: "/shops/0",
       icon:"store",
       separator:false,
       children:[]
@@ -30,7 +30,7 @@ export default [
     },  
     {
       title: "Assets",
-      to: "/assets",
+      to: "/assets/0",
       icon:"memory",
       separator:false,
       children:[]

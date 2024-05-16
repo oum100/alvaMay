@@ -88,6 +88,7 @@ export default NuxtAuthHandler({
                 console.log("UserInfo: ",userInfo)
                 // const user = userInfo
                 const user = {
+                    uuid: userInfo.uuid,
                     name: userInfo.name,
                     email: userInfo.email,
                     image: userInfo.image,

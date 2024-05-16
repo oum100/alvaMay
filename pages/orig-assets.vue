@@ -1,78 +1,91 @@
 <template>
-    <div class="q-pa-md">
-      <q-table
-        id="table1"
-        flat bordered
-        ref="tableRef"
-        title="Treats"
-        :rows="rows"
-        :columns="columns"
-        row-key="id"
-        :rows-per-page-options="[10,20,30,50,100]"
-        v-model:pagination="pagination"
-        :loading="loading"
-        :filter="filter"
-        binary-state-sort
-        @request="onRequest"
-      >
-        <template #top>
-            <!-- Header Information  -->
-            <div class ="col-3 text-h4 text-blue">Asset Infomation </div>
-            <q-space /> 
+  <div class="q-pa-md">
+    <q-table
+      id="table1"
+      flat bordered
+      ref="tableRef"
+      title="Treats"
+      :rows="rows"
+      :columns="columns"
+      row-key="id"
+      :rows-per-page-options="[10,20,30,50,100]"
+      v-model:pagination="pagination"
+      :loading="loading"
+      :filter="filter"
+      binary-state-sort
+      @request="onRequest"
+    >
+      <template #top>
+          <!-- Header Information  -->
+          <div class ="col-3 text-h4 text-blue">Asset Infomation </div>
+          <q-space /> 
 
-            <!-- Filter by partner  -->
-            <div class="q-mx-md q-guttar-md" style="max-width: 200px">
-                <q-select id="selectPartner" filled dense 
-                    v-model="partnerSelected" 
-                    :options="listPartnerOption" 
-                    label="Filter by Partner" 
-                    emit-value
-                    map-options
-                    style="width: 200px"
-                    @update:model-value="updateInfo()"
-                />
-            </div>
+          <!-- Filter by partner  -->
+          <div class="q-mx-md q-guttar-md" style="max-width: 200px">
+              <q-select id="selectPartner" filled dense 
+                  v-model="partnerSelected" 
+                  :options="listPartnerOption" 
+                  label="Filter by Partner" 
+                  emit-value
+                  map-options
+                  style="width: 200px"
+                  @update:model-value="updateInfo()"
+              />
+          </div>
 
-            <!-- Filter by shop  -->
-            <div class="q-mx-md q-guttar-md" style="max-width: 200px">
-                <q-select id="selectShop" filled dense 
-                    v-model="shopSelected" 
-                    :options="listShopOption" 
-                    label="Filter by shop" 
-                    emit-value
-                    map-options
-                    style="width: 200px"
-                    @update:model-value="updateInfo()"
-                />
-            </div>
+          <!-- Filter by shop  -->
+          <div class="q-mx-md q-guttar-md" style="max-width: 200px">
+              <q-select id="selectShop" filled dense 
+                  v-model="shopSelected" 
+                  :options="listShopOption" 
+                  label="Filter by shop" 
+                  emit-value
+                  map-options
+                  style="width: 200px"
+                  @update:model-value="updateInfo()"
+              />
+          </div>
 
-            <!-- Reset filter  -->
-            <div class="q-mx-md q-guttar-md" style="max-width: 200px">
-                <q-btn id="resetFilter" icon="restart_alt" title="Set filter to default" @click="resetFilter">Reset Filter</q-btn>
-            </div>
-        </template>
+          <!-- Reset filter  -->
+          <div class="q-mx-md q-guttar-md" style="max-width: 200px">
+              <q-btn id="resetFilter" icon="restart_alt" title="Set filter to default" @click="resetFilter">Reset Filter</q-btn>
+          </div>
+      </template>
 
-        <!-- Customize column  -->
-        <!-- <template #body-cell-partner="props" >
-            <q-td :props = "props" >
-                {{ props.row.partnerName }}
-            </q-td>
-        </template> -->
-        
-        <!-- Function Search -->
-        <!-- <template v-slot:top-right>
-          <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
-            <template v-slot:append>
-              <q-icon name="search" />
-            </template>
-          </q-input>
-        </template> -->
-  
-      </q-table>
-    </div>
-  </template>
+      <!-- Customize column  -->
+      <!-- <template #body-cell-partner="props" >
+          <q-td :props = "props" >
+              {{ props.row.partnerName }}
+          </q-td>
+      </template> -->
+      
+      <!-- Function Search -->
+      <!-- <template v-slot:top-right>
+        <q-input borderless dense debounce="300" v-model="filter" placeholder="Search">
+          <template v-slot:append>
+            <q-icon name="search" />
+          </template>
+        </q-input>
+      </template> -->
+
+    </q-table>
+  </div>
+</template>
   
   <script setup lang="ts">
+    const tableRef = ref()
+    const rows = ref([])
+    const filter:any = ref('')
+    const loading = ref(false)
+
+    //Setting pagination properties
+    const pagination = ref({
+      sortBy:'asc',
+      descending:false,
+      page: 1,
+      rowsPerPage: 10,
+      rowsNumber: 20
+    })
     
     //Define columns to display on screen
     const columns = [
@@ -89,19 +102,7 @@
       {name: 'actions', label: 'Actions', field: 'actions', align: 'center', sortable: false}
     ]
 
-    const tableRef = ref()
-    const rows = ref([])
-    const filter:any = ref('')
-    const loading = ref(false)
 
-    //Setting pagination properties
-    const pagination = ref({
-      sortBy:'asc',
-      descending:false,
-      page: 1,
-      rowsPerPage: 10,
-      rowsNumber: 20
-    })
 
     //To Create list of ListPartnerOption
     let partnerSelected = ref('ALL')
@@ -128,7 +129,21 @@
       // console.log("descending: ",descending)
       // console.log("testPage sort: ",sortBy)
 
-      const {data:dataTable} = await useFetch('/api/asset/v1.0.0/listByPagination',{
+      // const {data:dataTable} = await useFetch('/api/asset/v1.0.0/listByPagination',{
+      //     method:'POST',
+      //     body: {
+      //         "partnerCode":partnerSelected.value,
+      //         "shopCode": shopSelected.value,
+      //         "page":startRow,
+      //         "rowsPerPage":rowsPerPage,
+      //         "rowsNumber":count,
+      //         // "sortBy":sortBy||'asc',
+      //         // "descending": descending
+      //     }
+      // })
+      // return dataTable.value?.data   
+
+      const dataTable = await $fetch('/api/asset/v1.0.0/listByPagination',{
           method:'POST',
           body: {
               "partnerCode":partnerSelected.value,
@@ -140,7 +155,8 @@
               // "descending": descending
           }
       })
-      return dataTable.value?.data   
+      // console.log("dataTable: ",dataTable)
+      return dataTable.data  
     }
   
 
@@ -157,7 +173,8 @@
      
       // update rowsCount with appropriate value
       const totalResult =  await getRowsNumberCount(filter)
-      pagination.value.rowsNumber = totalResult.value?.totalCount as number
+      // pagination.value.rowsNumber = totalResult.value?.totalCount as number
+      pagination.value.rowsNumber = totalResult.totalCount as number
       console.log("page-rowsNumber: ",pagination.value.rowsNumber)
 
       // get all rows if "All" (0) is selected
@@ -244,7 +261,9 @@
     })
 
     async function getRowsNumberCount (filter:any) {
-      const {data:rowsCount} = await useFetch('/api/asset/v1.0.0/recordsCount',{
+      // const {data:rowsCount} = await useFetch('/api/asset/v1.0.0/recordsCount',{
+      //Nust recommended to use $fetch because of useFetch is for mouthed components
+      const rowsCount = await $fetch('/api/asset/v1.0.0/recordsCount',{
           // query:{
           //     partner:filter.partner,
           //     shop:filter.shop

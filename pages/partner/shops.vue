@@ -39,7 +39,7 @@
   const selected = ref([])
   const filter = ref('')
   const loading = ref(false)
-  let rows: any[]= []
+  const rows = ref()
   const pagination= ref({
             // sortBy:'branch',
             // descending: false,
@@ -71,13 +71,16 @@
   const count = dataTable.value?.data.length
   console.log("count:",count)
 
-  rows = rows.concat(dataTable.value?.data)
+  // rows = rows.concat(dataTable.value?.data)
+  rows.value = dataTable.value?.data
+  
 
-  rows.forEach((row:any,index:number) => {
+  rows.value.forEach((row:any,index:number) => {
+    console.log("Row data: ",row.user?.name)
     row.index = index+1
-    row.shopUser = row.user.name
-    row.userRole = row.user.role
-    row.assetCount = row.assets.length
+    row.shopUser = row.user?.name
+    row.userRole = row.user?.role
+    row.assetCount = row.assets?.length
     row.updatedAt= new Intl.DateTimeFormat('en-GB', {
             dateStyle: 'short',
             timeStyle: 'medium',

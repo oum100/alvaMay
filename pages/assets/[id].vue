@@ -1,5 +1,4 @@
 <template>
-    <!-- {{ userInfo }} -->
     <div class="q-pa-md">
       <q-table
         id="table1"
@@ -8,9 +7,11 @@
         title="Treats"
         :rows="rows"
         :columns="columns"
-        row-key="id"
+        row-key="index"
         :rows-per-page-options="[10,20,30,50,100]"
         v-model:pagination="pagination"
+        v-model:selected="selected"
+        selection="multiple"
         :loading="loading"
         :filter="filter"
         binary-state-sort
@@ -22,7 +23,7 @@
             <q-space /> 
   
             <!-- Filter by partner  -->
-            <div v-if="userInfo.user?.organization == 'PLATFORM'" class="q-mx-md q-guttar-md" style="max-width: 200px">
+            <div class="q-mx-md q-guttar-md" style="max-width: 200px">
                 <q-select id="selectPartner" filled dense 
                     v-model="partnerSelected" 
                     :options="listPartnerOption" 
@@ -35,7 +36,7 @@
             </div>
   
             <!-- Filter by shop  -->
-            <div v-if="userInfo.user?.organization != 'SHOP' " class="q-mx-md q-guttar-md" style="max-width: 200px">
+            <div class="q-mx-md q-guttar-md" style="max-width: 200px">
                 <q-select id="selectShop" filled dense 
                     v-model="shopSelected" 
                     :options="listShopOption" 
@@ -70,16 +71,24 @@
         </template> -->
   
       </q-table>
+      <div class="q-mt-md">
+            Selected: {{ JSON.stringify(selected) }}
+      </div>
     </div>
   </template>
     
     <script setup lang="ts">
-      const {data:userInfo} = useAuth()
+    //   import { useRouter } from "vue-router"
+
+      const route = useRoute()
+
+      console.log("partner: ",route.params.id)
+
       const tableRef = ref()
       const rows = ref([])
       const filter:any = ref('')
       const loading = ref(false)
-  
+      const selected = ref([])
       //Setting pagination properties
       const pagination = ref({
         sortBy:'asc',
@@ -109,42 +118,25 @@
       //To Create list of ListPartnerOption
       let partnerSelected = ref('ALL')
       let listPartnerOption = ref([{label:'ALL',value:'ALL'}])
-
-      if(userInfo.value?.user?.organization == 'PLATFORM'){
-        const {data:partnerResult} = await useFetch('/api/partner/v1.0.0/getPartnerQSelectOption')
-        partnerResult.value?.data.forEach( (item:any) => {
-            // console.log("Each Item:",item)
-            listPartnerOption.value.push(item)
-        })
-        // console.log('PartnerlistOption:',listPartnerOption)
-      }else{
-        partnerSelected.value = userInfo.value?.user?.partnerCode
+      const {data:partnerResult} = await useFetch('/api/partner/v1.0.0/getPartnerQSelectOption')
+      partnerResult.value?.data.forEach( (item:any) => {
+        // console.log("Each Item:",item)
+        listPartnerOption.value.push(item)
+      })
+      // console.log('PartnerlistOption:',listPartnerOption)
+      if(route.params.id != '0'){
+        partnerSelected.value = route.params.id
       }
-
   
   
       //To create list of ListShopOption
       let shopSelected = ref('ALL')
       let listShopOption = ref([{label:'ALL',value:'ALL'}])
-      if( userInfo.value?.user?.organization == 'PLATFORM'){
-        const {data:shopResult} = await useFetch('/api/shop/v1.0.0/getShopQSelectOption')
-        shopResult.value?.data.forEach( (item:any) => {
-            // console.log("Each Item:",item)
-            listShopOption.value.push(item)
-        })
-      }else if( userInfo.value?.user?.organization == 'PARTNER'){
-        const {data:shopResult} = await useFetch('/api/shop/v1.0.0/getShopQSelectOptionByPartner',{
-            query:{
-                partnerCode:userInfo.value?.user?.partnerCode
-            }
-        })
-        shopResult.value?.data.forEach( (item:any) => {
-            // console.log("Each Item:",item)
-            listShopOption.value.push(item)
-        })
-      }
-
-
+      const {data:shopResult} = await useFetch('/api/shop/v1.0.0/getShopQSelectOption')
+      shopResult.value?.data.forEach( (item:any) => {
+        // console.log("Each Item:",item)
+        listShopOption.value.push(item)
+      })
   
       // Fetch data from server by call to api listByPagination
       async function fetchFromServer (startRow:any, count:any, rowsPerPage:any, filter:any, sortBy:any, descending:any) {

@@ -73,7 +73,6 @@
                                 checked-icon="check"
                                 color="green"
                                 unchecked-icon="clear"
-                                
                             />
                             <span class="text-capital">ยอมรับเงื่อนไขการใช้งาน&nbsp&nbsp</span>
                             <NuxtLink to="/termcondition">
@@ -165,7 +164,7 @@
         if(status.value == "error"){
             $q.notify({
                 position: 'center',
-                message: error.value?.statusMessage + "or unique constraint",
+                message: "User existed or " + error.value?.statusMessage,
                 color:"red"
             })
             return

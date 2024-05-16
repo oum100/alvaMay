@@ -20,7 +20,7 @@
         >
 
             <template #top>
-                <div class ="col-3 text-h4 text-blue">Shop Infomation </div>
+                <div class ="col-3 text-h4 text-blue">Shop List </div>
                 <q-space /> 
                 <div class="q-mx-md q-guttar-md" style="max-width: 200px">
                     <q-select filled dense 
@@ -72,13 +72,12 @@
 </template>
 
 <script setup lang="ts">
-import { allow } from 'joi';
 
     const {data:userInfo} = useAuth()
     const tableRef = ref()
     // let rows = ref([])
     // let rows: any[]= []
-    let rows =ref()
+    let rows = ref([])
     const filter:any = ref('')
     const selected = ref([])
     const pagination= ref({
@@ -89,29 +88,25 @@ import { allow } from 'joi';
         rowsNumber:1
     })
 
+    //To Create list of ListPartnerOption
     let partnerSelected = ref('ALL')
-    let listPartnerOption = ref()
-    // let listPartnerOption = ref(['ALL','xyz','Alvato'])
-    // let listPartnerOption = ref([
-    //     {label: 'ALL',value:'ALL'},
-    //     {label: 'XYZ',value:'88875'},
-    //     {label: 'Alvato',value:'41492'}
-    // ])
+    let listPartnerOption = ref([{label:'ALL',value:'ALL'}])
+    const {data:partnerResult} = await useFetch('/api/partner/v1.0.0/getPartnerQSelectOption')
+    partnerResult.value?.data.forEach( (item:any) => {
+      // console.log("Each Item:",item)
+      listPartnerOption.value.push(item)
+    })
+    // console.log('PartnerlistOption:',listPartnerOption)
 
-    const {data:result} = await useFetch('/api/partner/v1.0.0/getPartnerQSelectOption')
-    listPartnerOption.value = result.value?.data
-    // console.log('alist:',listPartnerOption)
 
+    //To create list of ListShopOption
     let shopSelected = ref('ALL')
-    let listShopOption = ref()
-    // let listShopOption = ref(['ALL','RegentHome18'])
-    // let listShopOption = ref([
-    //     {label:'ALL',value:'ALL'},
-    //     {label:'RGH18',value:'88875-001'},
-    // ])
+    let listShopOption = ref([{label:'ALL',value:'ALL'}])
     const {data:shopResult} = await useFetch('/api/shop/v1.0.0/getShopQSelectOption')
-    listShopOption.value = shopResult.value?.data
-
+    shopResult.value?.data.forEach( (item:any) => {
+      // console.log("Each Item:",item)
+      listShopOption.value.push(item)
+    })
 
 
     filter.value = {
@@ -130,6 +125,8 @@ import { allow } from 'joi';
         // {name: 'updatedAt', label: 'Last Update', field: 'updatedAt', align: 'left', sortable: false},
         {name: 'actions', label: 'Actions', field: 'actions', align: 'center', sortable: false}
     ]
+
+
 
 
     onMounted(() => {
@@ -174,7 +171,7 @@ import { allow } from 'joi';
 
         //Fetch from srver
         // const {data:dataTable} = await useFetch('/api/asset/v1.0.0/getAll')
-        const {data:dataTable} = await useFetch('/api/shop/v1.0.0/listByPagination',{
+        const {data:dataTable} = await $fetch('/api/shop/v1.0.0/listByPagination',{
             method:'POST',
             body: {
                 "partnerCode":partnerSelected.value,
@@ -183,7 +180,7 @@ import { allow } from 'joi';
                 "rowsNumber":fetchCount,
             }
         })
-        console.log('dataTable: ',dataTable.value)
+        console.log('dataTable: ',dataTable)
         // rows = rows.concat(dataTable.value?.data)
         // console.log("Rows: ",rows)
 
@@ -194,7 +191,7 @@ import { allow } from 'joi';
         //     row.asset = row._count.assets
         // }) 
 
-        rows.value = dataTable.value?.data
+        rows.value = dataTable as any
         console.log('Rows: ',rows.value)
 
         rows.value.forEach((row:any,index:number) => {
