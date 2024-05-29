@@ -4,7 +4,7 @@ import jwt  from 'jsonwebtoken'
 import { PrismaClient,Prisma } from "@prisma/client"
 import { nanoid,customAlphabet} from 'nanoid'
 import { RuntimeConfig } from 'nuxt/schema'
-import { Base64 } from 'js-base64'
+// import { Base64 } from 'js-base64'
 import bcrypt from 'bcrypt'
 import {defaultcfg} from '~/alvato/models/defaultCFG'
 
@@ -16,7 +16,12 @@ const shortNanoid = customAlphabet('1234567890')
 
 export default defineEventHandler( async(event) =>{
     const body = await readBody(event)
-
+    if(!body){
+        throw createError({
+            statusCode: 500,
+            statusMessage: "Missing body",
+        })    
+    }
   
     const {error} = await validateNewPartner(body)
     if(error){
@@ -88,5 +93,9 @@ export default defineEventHandler( async(event) =>{
         }
     })
 
-    return {data:user}
+    return {
+        statusCode:200,
+        statusMessage:'Partner created',
+        data:user
+    }
 })

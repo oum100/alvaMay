@@ -32,7 +32,8 @@ export default defineEventHandler( async(event)=>{
     if(!partner)throw notFoundError
     
     return {
-        status:'success',
+        statusCode:200,
+        statusMessage:'success',
         data:partner
     }
 })

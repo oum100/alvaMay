@@ -1,8 +1,8 @@
 import Debug from 'debug'
 import {validateRegisterDevice} from '~/alvato/models/device'
-import {validAppKey} from '~/alvato/auth/apiAuth.ts'
+import {validAppKey} from '~/alvato/auth/apiAuth'
 import { PrismaClient,Prisma } from "@prisma/client";
-import { nanoid, customAlphabet} from 'nanoid'
+import { customAlphabet} from 'nanoid'
 
 const debug = Debug('api:device:register')
 const prisma = new PrismaClient();
@@ -100,6 +100,7 @@ export default defineEventHandler(async(event)=>{
                         deviceType:body.type || '',
                         board: body.board || '',
                         firmware: body.firmware || '',
+                        partnerCode: body.partnerCode
                     }
                 }
             },
@@ -118,7 +119,7 @@ export default defineEventHandler(async(event)=>{
         })
         return {
             statusCode:200,
-            statusMessage:"Completed registration",
+            statusMessage:"Success",
             data:asset
         }
     }

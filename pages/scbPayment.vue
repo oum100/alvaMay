@@ -1,5 +1,5 @@
 <template>
-    <h3>Devices</h3>
+    <h3>SCB Transaction</h3>
 </template>
 <script setup  lang="ts">
     const {data} = useAuth()

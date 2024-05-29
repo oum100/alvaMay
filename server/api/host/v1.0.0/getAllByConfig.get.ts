@@ -19,5 +19,9 @@ export default defineEventHandler(async(event)=>{
         where:{ configCode: query.configCode as string},
     })
 
-    return {data:getAll}
+    return {
+        statusCode:200,
+        statusMessage:'Success',
+        data:getAll
+    }
 })

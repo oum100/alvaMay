@@ -7,7 +7,11 @@ export default defineEventHandler( async(event) =>{
         return {status:'unAuthentication'}
     }
 
-    return session
+    return {
+        statusCode:200,
+        statusMessage:'Success',
+        data:session
+    }
     // return {
     //     email: session.user?.email,
     //     name: session.user?.name,

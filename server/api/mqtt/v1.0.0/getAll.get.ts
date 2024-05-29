@@ -13,5 +13,9 @@ export default defineEventHandler(async(event)=>{
     const getAll = await prisma.mqtts.findMany({
     })
 
-    return {data:getAll}
+    return {
+        statusCode:200,
+        statusMessage:'Success',
+        data:getAll
+    }
 })

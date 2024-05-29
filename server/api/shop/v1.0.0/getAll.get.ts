@@ -6,5 +6,9 @@ const prisma = new PrismaClient()
 
 export default defineEventHandler(async(event)=>{
     const shop = await prisma.shops.findMany()
-    return {data:shop}
+    return {
+        statusCode:200,
+        statusMessage:'Success',
+        data:shop
+    }
 })

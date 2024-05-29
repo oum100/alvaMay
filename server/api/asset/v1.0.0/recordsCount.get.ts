@@ -37,6 +37,8 @@ export default defineEventHandler(async(event)=>{
 
     // console.log('Count: ',count)
     return {
+        statusCode:200,
+        statusMessage:'Success',
         totalCount: count,
     }
     

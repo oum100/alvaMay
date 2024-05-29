@@ -19,6 +19,8 @@ export default defineEventHandler(async(event)=>{
     ])
 
     return {
+        statusCode:200,
+        statusMessage:'Success',
         data:{
             totalPartner: countItems[0],
             totalShop: countItems[1],

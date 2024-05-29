@@ -23,5 +23,9 @@ export default defineEventHandler(async(event)=>{
 
     const getList = resultList.map(transformQSelectOption)
 
-    return {data:getList}
+    return {
+        statusCode:200,
+        statusMessage:'Success',
+        data:getList
+    }
 })

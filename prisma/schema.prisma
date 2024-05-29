@@ -30,6 +30,7 @@ model Partners {
   shops       Shops[]
   users       Users[]
   assets      Assets[]
+  devices     Devices[]
   configs     Configs[]
   products    Products[]
   machines    Machines[]
@@ -103,6 +104,7 @@ model Shops {
   shopName      String
   description   String?
   assets        Assets[]
+  devices       Devices[]
   user          Users?    @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
   uuid          String?    
   partner       Partners? @relation(fields: [partnerCode], references: [partnerCode])
@@ -143,6 +145,10 @@ model Devices {
   replacedAt  DateTime?   @db.Date
   asset       Assets      @relation(fields: [assetCode], references: [assetCode])
   assetCode   String      @unique
+  partner       Partners? @relation(fields: [partnerCode], references: [partnerCode])
+  partnerCode   String?    
+  shop          Shops?    @relation(fields: [shopCode], references: [shopCode], onDelete: Cascade)
+  shopCode      String?   
   createdAt   DateTime    @default(now()) @db.Date
   updatedAt   DateTime?   @default(now()) @db.Date
 } 

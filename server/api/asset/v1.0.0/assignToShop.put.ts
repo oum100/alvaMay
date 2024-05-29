@@ -43,7 +43,7 @@ export default defineEventHandler(async(event)=>{
 
     return{
         statusCode:200,
-        statusMessage: "Assign asset successfully!",
+        statusMessage:'Success',
         data:asset
     }
 })

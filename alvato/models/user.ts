@@ -21,6 +21,6 @@ export async function validateListByPagination(body:any){
         rowsPerPage:Joi.number().required(),
         rowsNumber:Joi.number().required(),
         filter:Joi.string()
-    })
+    }).unknown(true)
     return schema.validate(body)
 }

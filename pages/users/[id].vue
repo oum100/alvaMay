@@ -39,7 +39,9 @@
                     <q-btn icon="restart_alt" title="Set filter to default" @click="resetFilter">Reset Filter</q-btn>
                 </div>
 
-                
+                <div class="q-mx-md q-gutter-md" style="max-width: 200px">
+                    <q-btn id="new" icon="person_add" color="green">User</q-btn>
+                </div>
             </template>
             <template #body-cell-partner="props" >
                 <q-td :props = "props" >
@@ -101,7 +103,7 @@
     })
     // console.log('PartnerlistOption:',listPartnerOption)
     if(route.params.id != '0'){
-    partnerSelected.value = route.params.id
+    partnerSelected.value = route.params.id as string
     }
 
     //To create list of ListShopOption
@@ -123,14 +125,14 @@
         {name: 'index', label: 'No', field: 'index', align: 'left', sortable: true,style: 'width: 30px'},
         {name: 'image', label: 'Photo', field: 'image' ,align: 'center', sortable: false,style: 'width: 30px' },
         {name: 'name', label: 'Name', field: 'name', align: 'left', sortable: true,style: 'width: 30px'},
-        {name: 'uuid', label: 'UUID', field: 'uuid' , align: 'left',sortable: false,style: 'width: 30px'},
+        {name: 'uuid', label: 'UUID', field: 'uuid' , align: 'left',sortable: true,style: 'width: 30px'},
         {name: 'email', label: 'Email', field: 'email', align: 'left', sortable: true,style: 'width: 30px'},
         {name: 'isActive', label: 'Is Active', field: 'isActive', align: 'left', sortable: false,style: 'width: 30px'},
         {name: 'organization', label: 'Organization', field: 'organization', align: 'left', sortable: true,style: 'width: 30px'},
-        {name: 'role', label: 'Role', field: 'role', align: 'left', sortable: false,style: 'width: 30px'},
+        {name: 'role', label: 'Role', field: 'role', align: 'left', sortable: true,style: 'width: 30px'},
         {name: 'permission', label: 'Permission', field: 'permission', align: 'left', sortable: false,style: 'width: 30px'},
         {name: 'profile', label: 'Profile', field: 'profile', align: 'left', sortable: false,style: 'width: 30px'},
-        {name: 'shops', label: '#Shops', field: 'shop', align: 'left', sortable: false,style: 'width: 30px'},
+        // {name: 'shops', label: '#Shops', field: 'shop', align: 'left', sortable: false,style: 'width: 30px'},
         {name: 'actions', label: 'Actions', field: 'actions', align: 'center', sortable: false}
     ]
 
@@ -202,6 +204,45 @@
 
         rows.value = dataTable as any
         console.log('Rows: ',rows.value)
+
+        const data2 = rows.value.slice()
+        // const data2 = dataTable.value?.data.slice()
+        console.log("Sorted->Data Before",data2)
+        if(sortBy){
+          const sortFn = 
+            sortBy ==='name'
+            ?(descending
+              ?(a:any, b:any) => (a.name > b.name ? -1 : a.name < b.name ? 1: 0)
+              :(a:any, b:any) => (a.name > b.name ? 1 : a.name < b.name ? -1: 0)
+            )
+            :sortBy === 'uuid'
+            ?(descending
+              ?(a:any, b:any) => (a.uuid > b.uuid ? -1 : a.uuid < b.uuid ?  1: 0)
+              :(a:any, b:any) => (a.uuid > b.uuid ?  1 : a.uuid < b.uuid ? -1: 0)               
+            )
+            :sortBy === 'email'
+            ?(descending
+              ?(a:any, b:any) => (a.email > b.email ? -1 : a.email < b.email ?  1: 0)
+              :(a:any, b:any) => (a.email > b.email ?  1 : a.email < b.email ? -1: 0)               
+            ) 
+            :sortBy === 'role'
+            ?(descending
+              ?(a:any, b:any) => (a.role > b.role ? -1 : a.role < b.role ?  1: 0)
+              :(a:any, b:any) => (a.role > b.role ?  1 : a.role < b.role ? -1: 0)               
+            ) 
+            :sortBy === 'organization'
+            ?(descending
+              ?(a:any, b:any) => (a.organization > b.organization ? -1 : a.organization < b.organization ?  1: 0)
+              :(a:any, b:any) => (a.organization > b.organization ?  1 : a.organization < b.organization ? -1: 0)               
+            )                       
+            :(descending
+              ?(a:any, b:any) => (parseFloat(b[sortBy]) - parseFloat(a[sortBy]))
+              :(a:any, b:any) => (parseFloat(a[sortBy]) - parseFloat(b[sortBy]))
+            )
+  
+          rows.value = data2?.sort(sortFn)
+          console.log("Sorted->returnedData",data2)
+        }         
 
         rows.value.forEach((row:any,index:number) => {
             row.index = startRow+index+1

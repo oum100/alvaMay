@@ -40,7 +40,7 @@ export default defineEventHandler(async(event)=>{
 
     return{
         statusCode:200,
-        statusMessage:'Shop created',
+        statusMessage:'Success',
         data:shop
     }
 })

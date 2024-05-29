@@ -1,7 +1,7 @@
 import Debug from 'debug'
 import { PrismaClient,Prisma } from "@prisma/client"
-import {validAppKey} from '~/alvato/auth/apiAuth.ts'
-import {validateUpdateAsset} from '~/alvato/models/asset.ts'
+import {validAppKey} from '~/alvato/auth/apiAuth'
+import {validateUpdateAsset} from '~/alvato/models/asset'
 
 const debug = Debug('api:asset:updateAsset')
 const prisma = new PrismaClient()
@@ -44,7 +44,7 @@ export default defineEventHandler(async(event)=>{
 
     return{
         statusCode:200,
-        statusMessage: "Update asset successfully!",
+        statusMessage:'Success',
         data:asset
     }
 })

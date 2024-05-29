@@ -23,5 +23,9 @@ export default defineEventHandler(async(event)=>{
 
     const device = await prisma.devices.findMany()
 
-    return {data:device}
+    return {
+        statusCode:200,
+        statusMessage:'Success',
+        data:device
+    }
 })

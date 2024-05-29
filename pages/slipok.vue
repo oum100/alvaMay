@@ -1,5 +1,5 @@
 <template>
-    <h3>Transactions</h3>
+    <h3>SlipOK Transaction</h3>
 </template>
 <script setup  lang="ts">
     const {data} = useAuth()

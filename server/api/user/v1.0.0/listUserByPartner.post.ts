@@ -43,6 +43,10 @@ export default defineEventHandler( async(event)=>{
 
     if(!users)throw notFoundError
 
-    return users
+    return {
+        statusCode:200,
+        statusMessage:'Success',
+        data:users
+    }
 
 })

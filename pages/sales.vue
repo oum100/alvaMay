@@ -1,5 +1,5 @@
 <template>
-    <h3>Balance</h3>
+    <h3>Sales Transaction</h3>
 </template>
 <script setup  lang="ts">
     const {data} = useAuth()

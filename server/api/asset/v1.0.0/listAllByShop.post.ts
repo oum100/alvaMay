@@ -73,7 +73,7 @@ export default defineEventHandler(async(event)=>{
   
     return{
         statusCode:200,
-        statusMessage: "List asset successfully!",
+        statusMessage:'Success',
         data:allList
     }
 })

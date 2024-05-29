@@ -23,10 +23,28 @@ export default [
     },
     {
       title: "Transactions",
-      to:"/Transactions",
       icon:"list",
       separator:false,
-      children:[]
+      children:[
+        {
+          title:"Sales",
+          icon:"paid",
+          to:"/sales",
+          separator:false
+        },
+        {
+          title:"SCB Payment",
+          icon:"qr_code",
+          to:"/scbPayment",
+          separator:false
+        },
+        {
+          title:"SlipOK",
+          icon:"receipt",
+          to:"/slipok",
+          separator:false
+        }
+      ]
     },  
     {
       title: "Assets",
@@ -44,7 +62,7 @@ export default [
     },
     {
       title: "Devices",
-      to: "/devices",
+      to: "/devices/0",
       icon:"memory",
       separator:false,
       children:[]

@@ -39,6 +39,9 @@
                     <q-btn icon="restart_alt" title="Set filter to default" @click="resetFilter">Reset Filter</q-btn>
                 </div>
 
+                <div class="q-mx-md q-gutter-md" style="max-width: 200px">
+                    <q-btn id="new" icon="add_circle" color="green">&nbspShop</q-btn>
+                </div>
                 
             </template>
             <template #body-cell-partner="props" >
@@ -122,7 +125,7 @@
     const columns = [
         {name: 'index', label: 'No', field: 'index', align: 'left', sortable: true},
         {name: 'shopName', label: 'Shop Name', field: 'shopName', align: 'left', sortable: true},
-        {name: 'shopCode', label: 'Shop Code', field: 'shopCode' , align: 'left',sortable: false},
+        {name: 'shopCode', label: 'Shop Code', field: 'shopCode' , align: 'left',sortable: true},
         {name: 'partnerName', label: 'Partner Name', field: 'partnerName', align: 'left', sortable: true},
         // {name: 'partnerCode', label: 'Partner Code', field: 'partnerCode', align: 'left', sortable: false},
         {name: 'asset', label: 'Total Assets', field: 'asset' ,align: 'center', sortable: true },
@@ -199,6 +202,35 @@
 
         rows.value = dataTable as any
         console.log('Rows: ',rows.value)
+
+        const data2 = rows.value.slice()
+        // const data2 = dataTable.value?.data.slice()
+        console.log("Sorted->Data Before",data2)
+        if(sortBy){
+          const sortFn = 
+            sortBy ==='partnerName'
+            ?(descending
+              ?(a:any, b:any) => (a.partner.partnerName > b.partner.partnerName ? -1 : a.partner.partnerName < b.partner.partnerName ? 1: 0)
+              :(a:any, b:any) => (a.partner.partnerName > b.partner.partnerName ? 1 : a.partner.partnerName < b.partner.partnerName ? -1: 0)
+            )
+            :sortBy === 'shopName'
+            ?(descending
+              ?(a:any, b:any) => (a.shopName > b.shopName ? -1 : a.shopName < b.shopName ?  1: 0)
+              :(a:any, b:any) => (a.shopName > b.shopName ?  1 : a.shopName < b.shopName ? -1: 0)               
+            )
+            :sortBy === 'shopCode'
+            ?(descending
+              ?(a:any, b:any) => (a.shopCode > b.shopCode ? -1 : a.shopCode < b.shopCode ?  1: 0)
+              :(a:any, b:any) => (a.shopCode > b.shopCode ?  1 : a.shopCode < b.shopCode ? -1: 0)               
+            )            
+            :(descending
+              ?(a:any, b:any) => (parseFloat(b[sortBy]) - parseFloat(a[sortBy]))
+              :(a:any, b:any) => (parseFloat(a[sortBy]) - parseFloat(b[sortBy]))
+            )
+  
+          rows.value = data2?.sort(sortFn)
+          console.log("Sorted->returnedData",data2)
+        }       
 
         rows.value.forEach((row:any,index:number) => {
             row.index = startRow+index+1

@@ -52,7 +52,8 @@ export default defineEventHandler(async(event)=>{
     console.log(token)
 
     return {
-        status: 200,
+        statusCode:200,
+        statusMessage:'Success',
         token: token
     }
 })

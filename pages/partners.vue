@@ -38,6 +38,9 @@
                 <div class="q-mx-md q-guttar-md" style="max-width: 200px">
                     <q-btn icon="restart_alt" title="Set filter to default" @click="resetFilter">Reset Filter</q-btn>
                 </div> -->
+                <div class="q-mx-md q-gutter-md" style="max-width: 200px">
+                    <q-btn id="new" icon="add_circle" color="green">&nbspPartner</q-btn>
+                </div>
             </template>
             
             <!-- <template #body-cell-partnerName="props" >

@@ -86,7 +86,10 @@ export default defineEventHandler(async(event)=>{
                     updatedAt:true,
                     partner:{select:{partnerName:true}},
                     shop:{select:{shopName:true}},
-                    device:{select:{deviceName:true}},
+                    device:{select:{
+                        deviceName:true,
+                        deviceMac:true
+                    }},
                     machine:{
                         select:{
                             name:true,
@@ -127,7 +130,10 @@ export default defineEventHandler(async(event)=>{
                     updatedAt:true,
                     partner:{select:{partnerName:true}},
                     shop:{select:{shopName:true}},
-                    device:{select:{deviceName:true}},
+                    device:{select:{
+                        deviceName:true,
+                        deviceMac:true
+                    }},
                     machine:{
                         select:{
                             name:true,
@@ -168,7 +174,10 @@ export default defineEventHandler(async(event)=>{
                     updatedAt:true,
                     partner:{select:{partnerName:true}},
                     shop:{select:{shopName:true}},
-                    device:{select:{deviceName:true}},
+                    device:{select:{
+                        deviceName:true,
+                        deviceMac:true
+                    }},
                     machine:{
                         select:{
                             name:true,
@@ -211,7 +220,10 @@ export default defineEventHandler(async(event)=>{
                     updatedAt:true,
                     partner:{select:{partnerName:true}},
                     shop:{select:{shopName:true}},
-                    device:{select:{deviceName:true}},
+                    device:{select:{
+                        deviceName:true,
+                        deviceMac:true
+                    }},
                     machine:{
                         select:{
                             name:true,
@@ -229,6 +241,8 @@ export default defineEventHandler(async(event)=>{
         }
         
         return {
+            statusCode:200,
+            statusMessage:'Success',
             data:assets
         }
     }

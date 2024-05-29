@@ -27,7 +27,7 @@ export default defineEventHandler(async(event)=>{
 
     return {
         statusCode:200,
-        statusMessage: "Get all config successfully!",
+        statusMessage:'Success',
         data:config
     }
 })

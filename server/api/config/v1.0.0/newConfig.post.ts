@@ -55,7 +55,7 @@ export default defineEventHandler(async(event)=>{
 
     return {
         statusCode:200,
-        statusMessage: "Update asset successfully!",
+        statusMessage:'Success',
         data:config
     }
 })

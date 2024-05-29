@@ -4,7 +4,7 @@
         id="table1"
         flat bordered
         ref="tableRef"
-        title="Treats"
+        title="Device List"
         :rows="rows"
         :columns="columns"
         row-key="index"
@@ -19,17 +19,11 @@
       >
         <template #top>
             <!-- Header Information  -->
-            <div class ="col-3 text-h4 text-blue">Asset Infomation </div>
-            <q-space /> 
-
-            <q-input borderless dense debounce="300" filled v-model="filter" placeholder="Search" style="width: 150px">
-              <template v-slot:append>
-                <q-icon name="search" />
-              </template>
-            </q-input>
+            <div class ="col-3 text-h4 text-blue">Device List </div>
+            
   
             <!-- Filter by partner  -->
-            <div class="q-mx-md q-guttar-md" style="max-width: 200px">
+            <div class="q-mx-md q-guttar-md" style="max-width:180px">
                 <q-select id="selectPartner" filled dense 
                     v-model="partnerSelected" 
                     :options="listPartnerOption" 
@@ -42,7 +36,7 @@
             </div>
   
             <!-- Filter by shop  -->
-            <div class="q-mx-md q-guttar-md" style="max-width: 200px">
+            <div class="q-mx-md q-guttar-md" style="max-width: 180px">
                 <q-select id="selectShop" filled dense 
                     v-model="shopSelected" 
                     :options="listShopOption" 
@@ -53,17 +47,75 @@
                     @update:model-value="updateInfo()"
                 />
             </div>
-
-
   
             <!-- Reset filter  -->
-            <div class="q-mx-md q-guttar-md" style="max-width: 200px">
-                <q-btn id="resetFilter" icon="restart_alt" title="Set filter to default" @click="resetFilter">Reset Filter</q-btn>
+            <div class="q-mx-md q-guttar-md" style="max-width: 180px">
+                <q-btn id="resetFilter" 
+                  icon="restart_alt" 
+                  title="Set filter to default" 
+                  @click="resetFilter"
+                  style="width: 150px"
+                  >Reset Filter</q-btn>
             </div>
 
             <!-- Add Device -->
-            <div class="q-mx-md q-gutter-md" style="max-width: 200px">
-                <q-btn id="new" icon="add_circle" color="green">&nbspAsset</q-btn>
+            <div class="q-mx-md q-gutter-md" >
+                <q-btn id="ota" 
+                  icon="vertical_align_top" 
+                  :color="selected.length>0?'green':'grey'" 
+                  round
+                  :disable="selected.length>0?'enable':'disable'"
+                >
+                  <q-tooltip>OTA</q-tooltip>
+                </q-btn>
+
+                <q-btn 
+                  id="ota" 
+                  icon="power_off" 
+                  :color="selected.length>0?'green':'grey'" 
+                  round
+                  :disable="selected.length>0?'enable':'disable'"
+                >
+                  <q-tooltip>OFFLINE</q-tooltip>
+                </q-btn>
+
+                <q-btn 
+                  id="ota" 
+                  icon="power" 
+                  :color="selected.length>0?'green':'grey'" 
+                  round
+                  :disable="selected.length>0?'enable':'disable'"
+                >
+                  <q-tooltip>ONLINE</q-tooltip>
+                </q-btn>
+
+                <q-btn 
+                  id="ota" 
+                  icon="restart_alt" 
+                  :color="selected.length>0?'green':'grey'" 
+                  round
+                  :disable="selected.length>0?'enable':'disable'"
+                >
+                  <q-tooltip>RESET</q-tooltip>
+                </q-btn>
+
+                <q-btn 
+                  id="add" 
+                  icon="add_circle" 
+                  color="green" 
+                  unelevated rounded
+                  >&nbspDevice
+                </q-btn>
+
+                <q-btn 
+                  id="ota" 
+                  icon="delete" 
+                  :color="selected.length>0?'green':'grey'" 
+                  round
+                  :disable="selected.length>0?'enable':'disable'"
+                >
+                  <q-tooltip>DELETE</q-tooltip>
+                </q-btn>
             </div>
         </template>
   
@@ -82,30 +134,17 @@
             </template>
           </q-input>
         </template> -->
-
         <template #body-cell-actions="props">
           <q-td :props = "props" >
-              <q-btn flat rounded icon="edit" @click="clickEdit(props.row.index)"></q-btn>
-              <q-btn flat rounded icon="delete" color="red" ></q-btn>
+              <q-btn flat round icon="edit"><q-tooltip>Edit</q-tooltip></q-btn>
+              <q-btn flat round icon="swap_horizontal_circle"><q-tooltip>Replace</q-tooltip></q-btn>
+              <q-btn flat round icon="delete" color="red"><q-tooltip>Delete</q-tooltip></q-btn>
           </q-td>
         </template>
-  
       </q-table>
       <div class="q-mt-md">
             Selected: {{ JSON.stringify(selected) }}
       </div>
-      
-      <q-dialog v-model="editFlag">
-        <q-card>
-          <q-card-section>
-            <div class="text-h5">Edit Asset</div>
-            <q-space />
-            <q-btn icon="close" flat round dense v-close-popup />
-          </q-card-section>
-        </q-card>
-      </q-dialog>
-      
-
     </div>
   </template>
     
@@ -121,7 +160,6 @@
       const filter:any = ref('')
       const loading = ref(false)
       const selected = ref([])
-      const editFlag = ref(false)
       //Setting pagination properties
       const pagination = ref({
         sortBy:'asc',
@@ -130,24 +168,20 @@
         rowsPerPage: 10,
         rowsNumber: 20
       })
+      const topBtnDisable = ref('disable')
       
       //Define columns to display on screen
       const columns = [
         {name: 'index', label: 'No', field: 'index', align: 'left', sortable: true},
+        {name: 'deviceMac', label: 'MAC Address', field: 'deviceMac', align: 'left', sortable: true},
+        {name: 'deviceName', label: 'Name', field: 'deviceName', align: 'left', sortable: true},
         {name: 'assetName', label: 'Asset Name', field: 'assetName', align: 'left', sortable: true},
-        {name: 'assetCode', label: 'Asset Code', field: 'assetCode' , align: 'left',sortable: true},
-        {name: 'partnerName', label: 'Partner Name', field: 'partnerName', align: 'left', sortable: true},
-        {name: 'shopName', label: 'Shop Name', field: 'shopName', align: 'left', sortable: true},
-       
-        {name: 'device', label: 'Device', field: 'deviceMac' , align: 'left',sortable: false},
-        {name: 'machine', label: 'Machine', field: 'Machine', align: 'left', sortable: true},
-        {name: 'assetType', label: 'Asset Type', field: 'assetType', align: 'left', sortable: true},
-
-        {name: 'assetStatus', label: 'Status', field: 'assetStatus', align: 'left', sortable: true},
-        
-        {name: 'config', label: 'Config', field: 'configCode', align: 'left', sortable: false},
-        {name: 'product', label: 'Products', field: 'productSKU' ,align: 'left', sortable: false},
-        // {name: 'updatedAt', label: 'Last Update', field: 'updatedAt', align: 'left', sortable: false, style: 'width: 30px'},
+        {name: 'firmware', label: 'Firmware', field: 'firmware' , align: 'left',sortable: true},
+        {name: 'board', label: 'Board', field: 'board', align: 'left', sortable: true},
+        {name: 'deviceType', label: 'Type', field: 'deviceType', align: 'left', sortable: true},
+        {name: 'deviceStatus', label: 'Status', field: 'deviceStatus', align: 'left', sortable: true},
+        {name: 'replaceBy', label: 'replaceBy', field: 'replaceBy', align: 'left', sortable: false},
+        {name: 'replacedAt', label: 'replacedAt', field: 'replacedAt' ,align: 'left', sortable: false },
         {name: 'actions', label: 'Actions', field: 'actions', align: 'center', sortable: false}
       ]
   
@@ -195,7 +229,7 @@
         // })
         // return dataTable.value?.data   
   
-        const dataTable = await $fetch('/api/asset/v1.0.0/listByPagination',{
+        const dataTable = await $fetch('/api/device/v1.0.0/listByPagination',{
             method:'POST',
             body: {
                 "partnerCode":partnerSelected.value,
@@ -208,7 +242,7 @@
             }
         })
         // console.log("dataTable: ",dataTable)
-        return dataTable.data
+        return dataTable.data  
       }
     
   
@@ -245,37 +279,43 @@
         // const data2 = dataTable.value?.data.slice()
         console.log("Sorted->Data Before",data2)
         if(sortBy){
+          console.log("Sort By: ",sortBy)
           const sortFn = 
-            sortBy ==='partnerName'
+            sortBy ==='deviceMac'
             ?(descending
-              ?(a:any, b:any) => (a.partner.partnerName > b.partner.partnerName ? -1 : a.partner.partnerName < b.partner.partnerName ? 1: 0)
-              :(a:any, b:any) => (a.partner.partnerName > b.partner.partnerName ? 1 : a.partner.partnerName < b.partner.partnerName ? -1: 0)
+              ?(a:any, b:any) => (a.deviceMac > b.deviceMac ? -1 : a.deviceMac < b.deviceMac ? 1: 0)
+              :(a:any, b:any) => (a.deviceMac > b.deviceMac ? 1 : a.deviceMac < b.deviceMac ? -1: 0)
             )
-            :sortBy === 'shopName'
+            :sortBy === 'deviceName'
             ?(descending
-              ?(a:any, b:any) => (a.shop.shopName > b.shop.shopName ? -1 : a.shop.shopName < b.shop.shopName ?  1: 0)
-              :(a:any, b:any) => (a.shop.shopName > b.shop.shopName ?  1 : a.shop.shopName < b.shop.shopName ? -1: 0)               
+              ?(a:any, b:any) => (a.deviceName > b.deviceName ? -1 : a.deviceName < b.deviceName ?  1: 0)
+              :(a:any, b:any) => (a.deviceName > b.deviceName ?  1 : a.deviceName < b.deviceName ? -1: 0)               
             )
+            :sortBy === 'firmware'
+            ?(descending
+              ?(a:any, b:any) => (a.firmware > b.firmware ? -1 : a.firmware < b.firmware ?  1: 0)
+              :(a:any, b:any) => (a.firmware > b.firmware ?  1 : a.firmware < b.firmware ? -1: 0)               
+            )           
+            :sortBy === 'deviceType'
+            ?(descending
+              ?(a:any, b:any) => (a.deivceType > b.deviceType ? -1 : a.deviceType < b.deviceType ?  1: 0)
+              :(a:any, b:any) => (a.deivceType > b.deviceType ?  1 : a.deviceType < b.deviceType ? -1: 0)               
+            )   
+            :sortBy === 'deviceStatus'
+            ?(descending
+              ?(a:any, b:any) => (a.deviceStatus > b.deviceStatus ? -1 : a.deviceStatus < b.deviceStatus ?  1: 0)
+              :(a:any, b:any) => (a.deviceStatus > b.deviceStatus ?  1 : a.deviceStatus < b.deviceStatus ? -1: 0)               
+            )  
             :sortBy === 'assetName'
             ?(descending
-              ?(a:any, b:any) => (a.assetName > b.assetName ? -1 : a.assetName < b.assetName ?  1: 0)
-              :(a:any, b:any) => (a.assetName > b.assetName ?  1 : a.assetName < b.assetName ? -1: 0)               
-            )           
-            :sortBy === 'assetType'
+              ?(a:any, b:any) => (a.asset.assetName > b.asset.assetName ? -1 : a.asset.assetName < b.asset.assetName ?  1: 0)
+              :(a:any, b:any) => (a.asset.assetName > b.asset.assetName ?  1 : a.asset.assetName < b.asset.assetName ? -1: 0)               
+            )     
+            :sortBy === 'board'
             ?(descending
-              ?(a:any, b:any) => (a.assetType > b.assetType ? -1 : a.assetType < b.assetType ?  1: 0)
-              :(a:any, b:any) => (a.assetType > b.assetType ?  1 : a.assetType < b.assetType ? -1: 0)               
-            )   
-            :sortBy === 'assetStatus'
-            ?(descending
-              ?(a:any, b:any) => (a.assetStatus > b.assetStatus ? -1 : a.assetStatus < b.assetStatus ?  1: 0)
-              :(a:any, b:any) => (a.assetStatus > b.assetStatus ?  1 : a.assetStatus < b.assetStatus ? -1: 0)               
-            )  
-            :sortBy === 'assetCode'
-            ?(descending
-              ?(a:any, b:any) => (a.assetCode > b.assetCode ? -1 : a.assetCode < b.assetCode ?  1: 0)
-              :(a:any, b:any) => (a.assetCode > b.assetCode ?  1 : a.assetCode < b.assetCode ? -1: 0)               
-            )  
+              ?(a:any, b:any) => (a.board > b.board ? -1 : a.board < b.board ?  1: 0)
+              :(a:any, b:any) => (a.board > b.board ?  1 : a.board < b.board ? -1: 0)               
+            ) 
             :(descending
               ?(a:any, b:any) => (parseFloat(b[sortBy]) - parseFloat(a[sortBy]))
               :(a:any, b:any) => (parseFloat(a[sortBy]) - parseFloat(b[sortBy]))
@@ -288,16 +328,16 @@
         //Prepare for display
         rows.value.forEach((row:any,index:number) => {
             row.index = startRow+index+1
-            row.partnerName = row.partner?.partnerName
-            row.shopName = row.shop?.shopName
-            row.deviceName = row.device?.deviceName
-            row.deviceMac = row.device?.deviceMac
-           
-            row.updatedAt= new Intl.DateTimeFormat('en-GB', {
+            row.assetName = row.asset.assetName
+
+            if(row.replacedAt != null){
+              row.replacedAt= new Intl.DateTimeFormat('en-GB', {
                 dateStyle: 'short',
                 timeStyle: 'medium',
                 timeZone: 'Asia/Bangkok',
-            }).format(new Date(row.updatedAt))
+              }).format(new Date(row.replacedAt))
+            }
+
         })  
         // clear out existing data and add new
         // rows.value.splice(0, rows.value.length, ...returnedData)
@@ -352,13 +392,6 @@
           }
   
           tableRef.value.requestServerInteraction()
-      }
-
-      async function clickEdit(inx:any){
-        editFlag.value = true
-
-        console.log("inx: ",inx)
-        console.log("rowNow: ", rows.value[inx-1])
       }
       
     </script>

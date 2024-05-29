@@ -6,5 +6,9 @@ const prisma = new PrismaClient()
 
 export default defineEventHandler(async(event)=>{
     const getAll = await prisma.users.findMany()
-    return {data:getAll}
+    return {
+        statusCode:200,
+        statusMessage:'Success',
+        data:getAll
+    }
 })

@@ -4,7 +4,7 @@ import Debug from 'debug'
 
 
 const prisma = new PrismaClient();
-const debug = Debug('api:shop:recordsCount');
+const debug = Debug('api:partner:recordsCount');
 
 export default defineEventHandler(async(event)=>{
     const query = getQuery(event)
@@ -14,13 +14,8 @@ export default defineEventHandler(async(event)=>{
     let count
 
     if(partner!='ALL'){
-        count = await prisma.users.count({
-            where:{ 
-                partnerCode : partner as string  
-            }
+        count = await prisma.partners.count({
         })
-    }else{
-        count = await prisma.users.count({})
     }
 
     // console.log('Count: ',count)
