@@ -260,15 +260,31 @@ model Transactions {
   productSku  String
   amount      Float
   paymentBy   String    //CASH, QR, etc
-  wallet      String
+  wallet      String?
 
   //Payment Request
-  paymentRequest  PaymentRequest? @relation(fields: [ paymentRequestId], references: [id])
-  paymentRequestId  String?     @db.ObjectId
-  qrGenId     String?    // QR request ID
+  // paymentRequest            PaymentRequest? @relation(fields: [ paymentRequestId], references: [id])
+  // paymentRequestId          String?     @db.ObjectId
+  qrGenId                   String?    // QR request ID
 
   //Paid Notify
-  paidNotify  String?    // paid notification ID
+  cyberpayPaidNotify        CyberpayPaidNotify?  @relation(fields: [cyberpayPaid_Id], references: [id])
+  cyberpayPaid_Id           String?              @db.ObjectId @unique
+
+  scbPaidNotify             SCBPaymentNotify?    @relation(fields: [scbPaid_Id], references: [id])
+  scbPaid_Id                String?              @db.ObjectId @unique
+
+  slipokPaidNotify          SlipOkPaidNotify?    @relation(fields: [slipokPaid_Id], references: [id])
+  slipokPaid_Id             String?              @db.ObjectId @unique
+
+  paysolutionPaidNotify     PaysolutionPaidNotify?    @relation(fields: [paysolutionPaid_Id], references: [id])
+  paysolutionPaid_Id        String?              @db.ObjectId @unique
+
+//Paid Notify
+  // cyberpayPaidNotify        CyberpayPaidNotify?    // paid notification ID
+  // scbPaidNotify             SCBPaymentNotify?
+  // slipOk                    SlipOkPaidNotify?
+  // paysolutionPaidNotify     PaysolutionPaidNotify?
 
   //Transaction status
   status      String?
@@ -331,7 +347,7 @@ model SubDistricts {
 model SCBPaymentNotify {
   id                     String  @id @default(auto()) @map("_id") @db.ObjectId
   amount                 String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
-  transactionId          String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
+  transaction_id          String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
   transactionDateandTime String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
   currencyCode           String //BP    CCFA  CCIPP  QRCS  Alipay  WeChatPay
   transactionType        String? //BP    CCFA  CCIPP  QRCS  
@@ -363,6 +379,12 @@ model SCBPaymentNotify {
   equivalentAmount       String? //                          Alipay    WeChatPay
   equivalentCurrencyCode String? //                          Alipay    WeChatPay
   companyId              String? //                          Alipay    WeChatPay
+
+  paymentRequest         PaymentRequest?    @relation(fields: [paymentRequestId], references: [id])
+  paymentRequestId       String?            @db.ObjectId
+  transaction            Transactions?
+  // transaction            Transactions       @relation(fields: [transactionId], references: [id])
+  // transactionId          String             @db.ObjectId @unique
 }
 
 
@@ -398,11 +420,11 @@ model PaymentRequest {
   productSku              String
   amount                  Float   // with 2 digit floating point
   createAt                DateTime        @db.Date @default(now())
-  transaction             Transactions[]
+  // transaction             Transactions[]
   cyberpayPaidNotify      CyberpayPaidNotify[]
-  // paySolutionPaidNotify   paySolutionPaidNotity[]
-  // SCBPaymentNotify       SCBPaymentNotify[]
-  // slipokPaidNotify        slipokPaidNotify[]
+  paySolutionPaidNotify   PaysolutionPaidNotify[]
+  SCBPaymentNotify        SCBPaymentNotify[]
+  slipokPaidNotify        SlipOkPaidNotify[]
 }
 
 
@@ -424,13 +446,14 @@ model CyberpayPaidNotify {
   ref_1                  String    
   ref_2                  String
   ref_3                  String
-  service_fee            Float
+  service_fee            String
   bank_code              String
   createdAt              DateTime          @db.Date @default(now())
   paymentRequest         PaymentRequest?    @relation(fields: [paymentRequestId], references: [id])
   paymentRequestId       String?            @db.ObjectId
-  // transaction            Transactions       @relation(fields: [transactionId], references: [id])
-  // transactionId           String            @db.ObjectId
+  // transaction            Transactions?       @relation(fields: [transactionId], references: [id])
+  // transactionId          String?             @db.ObjectId @unique
+  transaction            Transactions?
 }
 
 model CyberPaymentChannel {
@@ -443,4 +466,23 @@ model CyberPaymentChannel {
   updatedAt             DateTime        @db.Date @default(now())
 }
 
+model SlipOkPaidNotify {
+  id                     String  @id @default(auto()) @map("_id") @db.ObjectId
+  transaction_id         String
+  paymentRequest         PaymentRequest?    @relation(fields: [paymentRequestId], references: [id])
+  paymentRequestId       String?            @db.ObjectId
+  transaction            Transactions?
 
+  // transaction            Transactions       @relation(fields: [transactionId], references: [id])
+  // transactionId          String             @db.ObjectId @unique
+}
+
+model PaysolutionPaidNotify {
+  id                     String  @id @default(auto()) @map("_id") @db.ObjectId
+  transaction_id         String
+  paymentRequest         PaymentRequest?    @relation(fields: [paymentRequestId], references: [id])
+  paymentRequestId       String?            @db.ObjectId
+  transaction            Transactions?
+  // transaction            Transactions       @relation(fields: [transactionId], references: [id])
+  // transactionId          String             @db.ObjectId @unique
+}

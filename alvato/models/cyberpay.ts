@@ -28,7 +28,7 @@ export async function validatePaidNotify(body:any){
         ref_1: Joi.string().required(),
         ref_2: Joi.string().required(),
         ref_3: Joi.string().required(),
-        service_fee: Joi.number().required(),
+        service_fee: Joi.string().required(),
         bank_code: Joi.string().required()
     }).unknown(true)
     return schema.validate(body)

@@ -7,9 +7,14 @@ const prisma = new PrismaClient()
 export default defineEventHandler(async(event)=>{
     const getAll = await prisma.transactions.findMany({
         include:{
-            paymentRequest:{
+            cyberpayPaidNotify:{
                 include:{
-                    cyberpayPaidNotify:true
+                    paymentRequest:true
+                }
+            },
+            scbPaidNotify:{
+                include:{
+                    paymentRequest:true
                 }
             }
         }

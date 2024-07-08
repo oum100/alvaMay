@@ -36,39 +36,64 @@ export default defineEventHandler(async(event) =>{
     })
 
     //Found paymentRequest continue save paidNotify
+    const nowDT = new Date()
+
     const paidNotify = await prisma.cyberpayPaidNotify.create({
         data:{
             payment_channel_id: body.payment_channel_id,
-            transaction_id: body.transaction_id,
+            transaction_id: body.transaction_id,  // transaction from payment
             ref_1: body.ref_1,
             ref_2: body.ref_2,
             ref_3: body.ref_3,
             service_fee: body.service_fee,
             bank_code: body.bank_code,
             paymentRequestId: paymentReq.id,
+            
+            transaction:{
+                create:{
+                    partnerCode: paymentReq.partnerCode,
+                    shopCode: paymentReq.shopCode,
+                    assetCode: paymentReq.assetCode,
+                    productSku: paymentReq.productSku,
+                    amount: paymentReq.amount ,
+                    paymentBy: paymentReq.paymentName,
+                    // paymentRequestId: paymentReq.id,
+
+                    qrGenId: body.qrGenId || "",
+                    wallet: body.wallet || "",
+                    status: body.status || "PAID",
+                    jobStart: nowDT ,   
+                    jobRemain: paymentReq.product.qty
+                }
+            }
         },
- 
     })
+    if(!paidNotify){
+        throw createError({
+            statusCode:500,
+        })
+    }
+
 
     //paidNotify create new transaction 
-    const nowDT = new Date()
-    const newTransaction = await prisma.transactions.create({
-        data:{
-            partnerCode: paymentReq.partnerCode,
-            shopCode: paymentReq.shopCode,
-            assetCode: paymentReq.assetCode,
-            productSku: paymentReq.productSku,
-            amount: paymentReq.amount ,
-            paymentBy: paymentReq.paymentName,
-            paymentRequest: paymentReq.id,
-            paidNotify: paidNotify.transaction_id,
-            qrGenId: body.qrGenId || "",
-            wallet: body.wallet || "",
-            status: body.status || "PAID",
-            jobStart: nowDT ,   
-            jobRemain: paymentReq.product.qty
-        }
-    })
+    // const newTransaction = await prisma.transactions.create({
+    //     data:{
+    //         partnerCode: paymentReq.partnerCode,
+    //         shopCode: paymentReq.shopCode,
+    //         assetCode: paymentReq.assetCode,
+    //         productSku: paymentReq.productSku,
+    //         amount: paymentReq.amount ,
+    //         paymentBy: paymentReq.paymentName,
+    //         paymentRequestId: paymentReq.id,
+    //         // paidNotify: paidNotify.transaction_id,
+    //         qrGenId: body.qrGenId || "",
+    //         wallet: body.wallet || "",
+    //         status: body.status || "PAID",
+    //         jobStart: nowDT ,   
+    //         jobRemain: paymentReq.product.qty
+    //     }
+    // })
+
 
 
     //Update Asset to perform job. *** call api asset Job create

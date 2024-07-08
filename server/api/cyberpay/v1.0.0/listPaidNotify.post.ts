@@ -17,7 +17,8 @@ export default defineEventHandler(async(event) =>{
                     ref3:true,
                     amount:true
                 }
-            }
+            },
+            transaction:true
         }
     })
 
