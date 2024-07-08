@@ -1,9 +1,11 @@
 import { PrismaClient} from "@prisma/client";
 import Debug from 'debug'
-import {validateNewMachine} from '~/alvato/models/machine'
+// import { customAlphabet } from 'nanoid'
+import {validateNewProduct} from '~/alvato/models/product'
 
 const debug = Debug('api:partner:newPartner')
 const prisma = new PrismaClient();
+// const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',10);
 
 export default defineEventHandler(async(event)=>{
     const body = await readBody(event)
@@ -14,7 +16,7 @@ export default defineEventHandler(async(event)=>{
         })    
     }
 
-    const {error} = await validateNewMachine(body)
+    const {error} = await validateNewProduct(body)
     if(error){
         throw createError({
             statusCode:400,
@@ -23,25 +25,24 @@ export default defineEventHandler(async(event)=>{
         })        
     }
 
-    const machine = await prisma.machines.create({
+    const resultData = await prisma.products.create({
         data:{
-            serialNumber: body.serialNumber,
-            name: body.name,
-            model: body.model,
+            partnerCode: body.partnerCode,
+            // assetCode: body.assetCode,
+            sku: body.sku,
+            price: body.price,
+            qty: body.qty,
+            unit: body.unit,
+            shortName: body.shortName || null,
             type: body.type,
             description: body.description || null,
-            status: body.status || 'Active',
-            orderAt: body.orderDate,
-            expiredAt: body.expiredData,
-            assetCode: body.assetCode,
-            partnerCode: body.partnerCode
         }
     })
 
     return {
         statusCode:200,
         statusMessage:'Machine created',
-        data:machine
+        data:resultData
     }
 
 

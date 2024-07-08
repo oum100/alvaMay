@@ -72,7 +72,7 @@
             name:'WM-002',
             type:'washer',
             status:"ready",
-            disableMachine:false,
+            disableMachine:true,
             selectPrice:'30',
             products:[
                 {product: '30M', price:30, stime:30},
@@ -84,7 +84,7 @@
             name:'DM-003',
             type:'dryer',
             status:"busy",
-            disableMachine:true,
+            disableMachine:false,
             selectPrice:'40',
             products:[
                 {product: '60M', price:40, stime:30 },
@@ -277,9 +277,9 @@
     <div class="justify-center q-mt-md">
         <!-- <q-card bordered style="height:700px"> -->
                 <!-- First row -->
-                <div class="row justify-center q-gutter-md q-my-sm">
+                <div class="row justify-center  q-my-sm">
                     <div v-for="machine,i in machines" :key="i">
-                        <q-card flat v-if="machine.type=='dryer'" style="width:140px; height:250px" :disabled="machine.disableMachine" >
+                        <q-card flat v-if="machine.type=='dryer'" style="width:140px; height:250px" :disable="machine.disableMachine" >
                            <!-- Machine name -->
                             <div class="row justify-center">
                                 <div class="text-h5 text-center"><b>{{ machine.name }}</b></div>
@@ -332,10 +332,84 @@
                             <!-- Machine Image -->
                             <div class="row justify-center">
                                 <q-btn flat :disabled="machine.disableMachine">
-                                    <img v-if="machine.status == 'ready' " src="/images/kiosk/NewDryer-Green.png" width="100%"/>
-                                    <img v-else-if="machine.status == 'busy' " src="/images/kiosk/NewDryer-Red.png" width="100%"/>
-                                    <img v-else-if="machine.status == 'booked' " src="/images/kiosk/NewDryer-Blue.png" width="100%"/>
-                                    <img v-else-if="machine.status == 'offline' " src="/images/kiosk/NewDryer-Gray.png" width="100%"/>
+                                    <img v-if="machine.status == 'ready' "src="/images/kiosk/NewDryer-Green.png" width="100%"/>
+                                    <img v-else-if="machine.status == 'busy' "src="/images/kiosk/NewDryer-Red.png" width="100%"/>
+                                    <img v-else-if="machine.status == 'booked' "src="/images/kiosk/NewDryer-Blue.png" width="100%"/>
+                                    <img v-else-if="machine.status == 'offline' "src="/images/kiosk/NewDryer-Gray.png" width="100%"/>
+                                    <q-tooltip 
+                                    anchor="center middle" 
+                                    self="center middle"
+                                    class="bg-black"
+                                    transition-show="flip-right"
+                                    transition-hide="flip-left"
+                                    >
+                                      Status is {{ machine.status }}
+                                    </q-tooltip>
+                                </q-btn>
+                            </div>
+                        </q-card>
+                    </div>
+                </div>
+                <!-- Secand row-->
+                <div class="row justify-center q-my-xl">
+                    <div v-for="machine,i in machines" :key="i">
+                        <q-card flat v-if="machine.type=='washer'" style="width:140px; height:250px" :disable="machine.disableMachine" >
+                           <!-- Machine name -->
+                            <div class="row justify-center">
+                                <div class="text-h5 text-center"><b>{{ machine.name }}</b></div>
+                            </div>
+                            
+                            <!-- Selected Price -->
+                            <div class="row justify-center">
+                                <div class="text-h6 text-center text-red">Price: {{ machine.selectPrice }}</div>
+                            </div>
+
+                            <!-- Selector -->
+                            <div class="row justify-center q-py-sm">
+                                <!-- SelectorOption 1 -->
+                                <q-btn-toggle
+                                    v-if="selectorOption=='1'"
+                                    v-model="machine.selectPrice" glossy rounded dense 
+                                    color="blue-10" toggle-color="blue-5"
+                                    :options=toggleBtn[i]
+                                    :disable="machine.disableMachine"
+                                >
+                                    <template v-slot:60M>
+                                        <q-tooltip>{{toggleBtn[i][0].tooltip}}</q-tooltip>
+                                    </template>
+                                    <template v-slot:75M>
+                                        <q-tooltip>{{toggleBtn[i][1].tooltip}}</q-tooltip>
+                                    </template>   
+                                    <template v-slot:90M>
+                                        <q-tooltip>{{toggleBtn[i][2].tooltip}}</q-tooltip>
+                                    </template>                                 
+                                </q-btn-toggle>              
+                                
+                                <!-- SelectorOption 2 -->
+                                <q-select dense 
+                                    v-if="selectorOption=='2'"
+                                    label="Time (Mins)"
+                                    v-model="machine.selectPrice" 
+                                    :options="toggleBtn[i]"
+                                    emit-value
+                                    map-options
+                                    stack-label
+                                    style="width: 100px"
+                                >
+                                    <template v-slot:prepend>
+                                    <!-- <q-icon name="browse_gallery" /> -->
+                                    </template>
+                                </q-select>
+    
+                            </div>
+
+                            <!-- Machine Image -->
+                            <div class="row justify-center">
+                                <q-btn flat :disabled="machine.disableMachine">
+                                    <img v-if="machine.status == 'ready' " src="/images/kiosk/NewWasher-Green1.png" width="100%"/>
+                                    <img v-else-if="machine.status == 'busy' " src="/images/kiosk/NewWasher-Red.png" width="100%"/>
+                                    <img v-else-if="machine.status == 'booked' " src="/images/kiosk/NewWasher-Blue.png" width="100%"/>
+                                    <img v-else-if="machine.status == 'offline' " src="/images/kiosk/NewWasher-Gray.png" width="100%"/>
                                     <q-tooltip 
                                     anchor="center middle" 
                                     self="center middle"
@@ -350,26 +424,5 @@
                         </q-card>
                     </div>
                 </div>
-                
-                <!-- Second row -->
-                <!-- <div class="row justify-center q-gutter-md q-my-sm">
-                    <div v-for="machine,i in machines" :key="i">
-                        <q-card v-if="machine.type=='washer'" flat style="width:150px; height:250px">
-                            <q-item>
-                                <q-item-section>
-                                    <q-item-label class="text-h5 text-center">{{ machine.name }}</q-item-label>
-                                    <q-item-label class="text-center text-subtitle1">{{ machine.status }}</q-item-label>
-                                </q-item-section>
-                            </q-item>
-                            <q-btn flat>
-                                <img v-if="machine.status == 'ready' " src="/images/kiosk/NewWasher-Green.png" width="110%">
-                                <img v-else-if="machine.status == 'busy' " src="/images/kiosk/NewWasher-Red.png" width="110%">
-                                <img v-else-if="machine.status == 'booked' " src="/images/kiosk/NewWasher-Blue.png" width="110%">
-                                <img v-else-if="machine.status == 'offline' " src="/images/kiosk/NewWasher-Gray.png" width="110%">
-                            </q-btn>
-                        </q-card>
-                    </div>
-                </div>            -->
-        <!-- </q-card> -->
     </div>
 </template>

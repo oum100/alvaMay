@@ -62,7 +62,6 @@ export default defineEventHandler(async(event)=>{
 
     if(partnerCode && shopCode){
         let assets,count 
-
         if(shopCode != 'ALL' && partnerCode == 'ALL'){
             assets = await prisma.assets.findMany({
                 skip:skip,
@@ -92,14 +91,19 @@ export default defineEventHandler(async(event)=>{
                     }},
                     machine:{
                         select:{
-                            name:true,
-                            type:true,
+                            serialNumber:true,
+                            type:true
                         }
                     },
                     product:{
+                        orderBy:{
+                            price:'asc'
+                        },
                         select:{
                             sku:true,
                             price:true,
+                            qty:true,
+                            unit:true
                         }
                     }
                 }
@@ -136,14 +140,19 @@ export default defineEventHandler(async(event)=>{
                     }},
                     machine:{
                         select:{
-                            name:true,
-                            type:true,
+                            serialNumber:true,
+                            type:true
                         }
                     },
                     product:{
+                        orderBy:{
+                            price:'asc'
+                        },
                         select:{
                             sku:true,
                             price:true,
+                            qty:true,
+                            unit:true
                         }
                     }
                 }
@@ -180,20 +189,24 @@ export default defineEventHandler(async(event)=>{
                     }},
                     machine:{
                         select:{
-                            name:true,
-                            type:true,
+                            serialNumber:true,
+                            type:true
                         }
                     },
                     product:{
+                        orderBy:{
+                            price:'asc'
+                        },
                         select:{
                             sku:true,
                             price:true,
+                            qty:true,
+                            unit:true
                         }
                     }
                 }
             })        
         }else{
-            
             assets = await prisma.assets.findMany({
                 skip:skip,
                 take:take,
@@ -226,20 +239,27 @@ export default defineEventHandler(async(event)=>{
                     }},
                     machine:{
                         select:{
+                            serialNumber:true,
                             name:true,
-                            type:true,
+                            type:true
                         }
                     },
                     product:{
+                        orderBy:{
+                            price:'asc'
+                        },
                         select:{
                             sku:true,
                             price:true,
+                            qty:true,
+                            unit:true
                         }
                     }
                 }
             })
         }
-        
+
+        // console.log(assets)
         return {
             statusCode:200,
             statusMessage:'Success',

@@ -94,9 +94,10 @@
 <script setup lang="ts">
     import { useRouter } from "vue-router"
 
+    const router = useRouter()
     const {data:userInfo} = useAuth()
     const $q = useQuasar();
-    const router = useRouter()
+    
     const tableRef = ref()
     // let rows = ref([])
     // let rows: any[]= []
@@ -225,10 +226,12 @@
 
 
     async function cellClick(partnerCode:string, field:string){
+        
         // This funcition handle when cell click and redirect to field of that parterCode
-        console.log("partnerCode: ",partnerCode, field)
+        // console.log("partnerCode: ",partnerCode, field)
+        
         const target = "/" + field + "/" +partnerCode
-        console.log("Target: ",target)
+        // console.log("Target: ",target)
         // $q.notify({
         //     position: 'center',
         //     message: target,

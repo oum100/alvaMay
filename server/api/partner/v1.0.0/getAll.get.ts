@@ -10,7 +10,10 @@ export default defineEventHandler(async(event)=>{
     // Verify appKey and appSecret
     // const isValidKey= await validAppKey(event)
 
-    const getAll = await prisma.mqtts.findMany({
+    const getAll = await prisma.partners.findMany({
+        include:{
+            products:true,
+        }
     })
 
     return {

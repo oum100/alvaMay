@@ -212,23 +212,6 @@
   
       // Fetch data from server by call to api listByPagination
       async function fetchFromServer (startRow:any, count:any, rowsPerPage:any, filter:any, sortBy:any, descending:any) {
-        // console.log("descending: ",descending)
-        // console.log("testPage sort: ",sortBy)
-  
-        // const {data:dataTable} = await useFetch('/api/asset/v1.0.0/listByPagination',{
-        //     method:'POST',
-        //     body: {
-        //         "partnerCode":partnerSelected.value,
-        //         "shopCode": shopSelected.value,
-        //         "page":startRow,
-        //         "rowsPerPage":rowsPerPage,
-        //         "rowsNumber":count,
-        //         // "sortBy":sortBy||'asc',
-        //         // "descending": descending
-        //     }
-        // })
-        // return dataTable.value?.data   
-  
         const dataTable = await $fetch('/api/device/v1.0.0/listByPagination',{
             method:'POST',
             body: {

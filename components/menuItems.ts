@@ -23,28 +23,10 @@ export default [
     },
     {
       title: "Transactions",
+      to: "/transactions",
       icon:"list",
       separator:false,
-      children:[
-        {
-          title:"Sales",
-          icon:"paid",
-          to:"/sales",
-          separator:false
-        },
-        {
-          title:"SCB Payment",
-          icon:"qr_code",
-          to:"/scbPayment",
-          separator:false
-        },
-        {
-          title:"SlipOK",
-          icon:"receipt",
-          to:"/slipok",
-          separator:false
-        }
-      ]
+      children:[]
     },  
     {
       title: "Assets",
@@ -55,7 +37,7 @@ export default [
     },
     {
       title: "Machines",
-      to: "/machines",
+      to: "/machines/0",
       icon:"memory",
       separator:false,
       children:[]
@@ -101,7 +83,7 @@ export default [
         {
           title:"Balance",
           icon:"mdi-wallet-outline",
-          to:"/balance",
+          to:"/wallet",
           separator:false
         }]
     },

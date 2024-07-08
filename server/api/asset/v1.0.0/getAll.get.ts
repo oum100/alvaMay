@@ -25,6 +25,7 @@ export default defineEventHandler(async(event)=>{
 
     const allList = await prisma.assets.findMany({
         select:{
+            id:true,
             assetCode:true,
             assetName:true,
             assetType:false,
@@ -35,7 +36,16 @@ export default defineEventHandler(async(event)=>{
             createdAt:false,
             updatedAt:true,
             partner:{select:{partnerName:true}},
-            shop:{select:{shopName:true}},
+            shop:{select:{
+                // shopCode:true,
+                shopName:true,
+                // paymentPartner:true,
+                paymentPartner:{
+                    select:{
+                        paymentId:true
+                    }
+                }
+            }},
             device:{select:{deviceName:true}},
             machine:{
                 select:{
@@ -50,6 +60,7 @@ export default defineEventHandler(async(event)=>{
                 }
             }
         }
+        
     })
   
     return{

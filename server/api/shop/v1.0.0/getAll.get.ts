@@ -5,10 +5,16 @@ const debug = Debug('api:shop:getAll')
 const prisma = new PrismaClient()
 
 export default defineEventHandler(async(event)=>{
-    const shop = await prisma.shops.findMany()
+    const resultData = await prisma.shops.findMany({
+        include:{
+            // assets:true,
+            // devices:true,
+            paymentPartner:true
+        }
+    })
     return {
         statusCode:200,
         statusMessage:'Success',
-        data:shop
+        data:resultData
     }
 })

@@ -24,6 +24,7 @@ export default defineNuxtConfig({
       GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
       GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
       TWITCH_CLIENT_ID: process.env.TWITCH_CLIENT_ID,
+    
     },
   },
 

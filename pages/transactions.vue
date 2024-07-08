@@ -1,6 +1,28 @@
 <template>
-    
-    <div class="q-pa-md">
+    <div class="row q-my-md" style="height: 250px" >
+        <div class="col-6 q-px-md" >
+            <!-- <q-card style="background: radial-gradient(circle, #ffffff 30%, #80daff 70%, #35a2ff 100%)" class="text-white">
+                <q-card-section> -->
+                    <apexchart type="bar"  width="600" height="250" :options="chart2.chartOptions" :series="chart2.series"></apexchart>
+                <!-- </q-card-section>
+            </q-card> -->
+        </div>
+        <div class="col-3 q-px-md">
+            <q-card class="text-white" style="width: 300px; height:250px">
+                <q-card-section>
+                    <apexchart type="donut"  width="280" height="250" :options="chart3.chartOptions" :series="chart3.series"></apexchart>
+                </q-card-section>
+            </q-card>
+        </div>
+        <div class="col-3 q-px-md">
+            <q-card class="text-white" style="width: 300px; height:250px">
+                <q-card-section>
+                    <apexchart type="donut"  width="280" height="250" :options="chart3.chartOptions" :series="chart3.series"></apexchart>
+                </q-card-section>
+            </q-card>
+        </div>
+    </div>
+    <div class = "q-pa-md">
         <q-table
             flat bordered
             ref="tableRef"
@@ -71,11 +93,107 @@
         <div class="q-mt-md">
             Selected: {{ JSON.stringify(selected) }}
         </div>
-        
     </div>
 </template>
 
-<script setup lang="ts">
+
+<script setup  lang="ts">
+    // definePageMeta({
+    //     layout:'partner',
+    //     // middleware: "auth",
+    //     // auth:{
+    //     //     unauthenticationOnly:false,
+    //     //     navigateAuthenticatedTo: '/kiosk'
+    //     // }
+    // })
+
+    //----------------------- Chart -----------------------
+    const chart2 = ref({
+        series: [{
+            name: 'CASH',
+            data: [44, 55, 57, 56, 61, 58, 63, 60, 66,33,49,87]
+          }, {
+            name: 'QR',
+            data: [76, 85, 101, 98, 87, 105, 91, 114, 94, 98, 87, 105]
+          }, {
+            name: 'Total',
+            data: [35, 41, 36, 26, 45, 48, 52, 53, 41, 98, 87, 105]
+          }],
+          chartOptions: {
+            chart: {
+              type: 'bar',
+              height: 200,
+            //   width:600
+            },
+            title: {text:"Revenue"},
+            plotOptions: {
+              bar: {
+                horizontal: false,
+                columnWidth: '55%',
+                endingShape: 'rounded'
+              },
+            },
+            dataLabels: {
+              enabled: false
+            },
+            stroke: {
+              show: true,
+              width: 2,
+              colors: ['transparent']
+            },
+            xaxis: {
+              categories: ['Jan','Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct','Nov','Dec'],
+            },
+            yaxis: {
+              title: {
+                text: '$ (thousands)'
+              }
+            },
+            fill: {
+              opacity: 1
+            },
+            tooltip: {
+              y: {
+                formatter: function (val:any) {
+                  return "$ " + val + "Baht"
+                }
+              }
+            },
+          },
+    })
+
+    const chart3 = ref({
+        series: [44, 55, 13, 43, 22],
+          chartOptions: {
+            chart: {
+                height:200,
+            //   width: 350,
+              type: 'donut',
+            },
+            title: {text:"Assets"},
+            labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
+            responsive: [{
+              breakpoint: 480,
+              options: {
+                chart: {
+                  width: 200
+                },
+                legend: {
+                  position: 'bottom'
+                }
+              }
+            }],
+            // tooltip: {
+            //   y: {
+            //     formatter: function (val:any) {
+            //       return "$ " + val + "Baht"
+            //     }
+            //   }
+            // },
+          },
+    })    
+
+    // ----------------------- Table -----------------------
     const route = useRoute()
 
     const {data:userInfo} = useAuth()
@@ -124,12 +242,16 @@
 
     const columns = [
         {name: 'index', label: 'No', field: 'index', align: 'left', sortable: true},
-        {name: 'shopName', label: 'Shop Name', field: 'shopName', align: 'left', sortable: true},
-        {name: 'shopCode', label: 'Shop Code', field: 'shopCode' , align: 'left',sortable: true},
-        {name: 'partnerName', label: 'Partner Name', field: 'partnerName', align: 'left', sortable: true},
-        // {name: 'partnerCode', label: 'Partner Code', field: 'partnerCode', align: 'left', sortable: false},
-        {name: 'asset', label: 'Total Assets', field: 'asset' ,align: 'center', sortable: true },
-        {name: 'user', label: 'Manage By', field: 'email', align: 'left', sortable: true},
+        {name: 'date', label: 'Date', field: 'createAt', align: 'left', sortable: true},
+        // {name: 'partnerName', label: 'Partner', field: 'partnerName', align: 'left', sortable: true},
+        // {name: 'shopName', label: 'Shop', field: 'shopName', align: 'left', sortable: true},
+        {name: 'transaction', label: 'Transaction', field: 'transactionId', align: 'left', sortable: true},
+        {name: 'assetName', label: 'Asset', field: 'assetName' ,align: 'center', sortable: true },
+        {name: 'paymentBy', label: 'Payment By', field: 'paymentName', align: 'left', sortable: true},
+        {name: 'amount', label: 'Amount', field: 'amount', align: 'left', sortable: true},
+        {name: 'status', label: 'Status', field: 'status', align: 'left', sortable: true},
+        {name: 'jobStatus', label: 'Job Status', field: 'jobStatus', align: 'left', sortable: true},
+
         // {name: 'updatedAt', label: 'Last Update', field: 'updatedAt', align: 'left', sortable: false},
         {name: 'actions', label: 'Actions', field: 'actions', align: 'center', sortable: false}
     ]
@@ -277,4 +399,33 @@
         return rowsCount
     }
 
+
 </script>
+
+
+<style lang="scss" scoped>
+    .my-sticky-dynamic{
+        height: 650px;
+      
+        .q-table__top,
+        .q-table__bottom{
+            thead, tr:first-child, th{
+                /* bg color is important for th; just specify one */
+                background-color: #cccccc       
+            } 
+            thead, tr, th {
+                position: sticky;
+                z-index: 1;
+            }     
+            thead, tr:last-child, th{
+                top: 48px;
+            }
+            thead, tr:first-child, th{
+                top: 0;
+            }
+            tbody{
+                scroll-margin-top: 48px;
+            }
+        }
+    }
+</style>

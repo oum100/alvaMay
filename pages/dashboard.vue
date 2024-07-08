@@ -69,7 +69,7 @@
   <div class="row flex-center">
     <div class="q-mx-lg">
       <!-- {{ data?.user }} -->
-    <div v-if = "data?.user?.organization  == 'PLATFORM'">
+    <div v-if = "data?.user?.organization == 'PLATFORM'">
       <h6>Organization: PLATFORM</h6>
     </div>
 

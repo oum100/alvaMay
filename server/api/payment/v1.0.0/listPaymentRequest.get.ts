@@ -5,21 +5,18 @@ const debug = Debug('api:shop:getAll')
 const prisma = new PrismaClient()
 
 export default defineEventHandler(async(event)=>{
-    const getAll = await prisma.transactions.findMany({
+    const resultData = await prisma.paymentRequest.findMany({
+        // where:{
+        //     assetCode: "AUVWWH0GKR"
+        // }
         include:{
-            paymentRequest:{
-                include:{
-                    cyberpayPaidNotify:true
-                }
-            }
+            cyberpayPaidNotify:true,
+            product:true
         }
     })
-
-
-
     return {
         statusCode:200,
         statusMessage:'Success',
-        data:getAll
+        data:resultData
     }
 })

@@ -90,13 +90,13 @@ export default defineEventHandler(async(event)=>{
                 shopCode: body.shopCode || '',
                 assetCode: newAssetCode,
                 assetName: body.assetName || newAssetCode,
-                assetStatus: 'AVAILABLE',  // AVAILABLE, ASSIGN, 
+                assetStatus: 'ACTIVATED',  // AVAILABLE, ASSIGN, 
                 configCode: body.configCode || 'CFG000',
                 device:{
                     create:{
                         deviceMac: body.deviceMac,
                         deviceName: body.deviceName || newDeviceName,
-                        deviceStatus: body.devicStatus || "REGISTERED",
+                        deviceStatus: body.devicStatus || "ASSIGNED",
                         deviceType:body.type || '',
                         board: body.board || '',
                         firmware: body.firmware || '',

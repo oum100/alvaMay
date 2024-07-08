@@ -6,10 +6,10 @@ export async function validateNewMachine(body:any){
         name: Joi.string().required(),
         model: Joi.string().required(),
         type: Joi.string().required(),
-        description: Joi.string(),
-        status: Joi.string(),
-        orderAt: Joi.string(),
-        expiredAt: Joi.string()
+        status: Joi.string().required(),
+        orderAt: Joi.string().required(),
+        expiredAt: Joi.string().required(),
+        description: Joi.string()
     }).unknown(true)
     return schema.validate(body)
 }

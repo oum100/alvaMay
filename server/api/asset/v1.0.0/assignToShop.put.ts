@@ -1,7 +1,7 @@
 import Debug from 'debug'
 import { PrismaClient,Prisma } from "@prisma/client"
-import {validAppKey} from '~/alvato/auth/apiAuth.ts'
-import {validateAssignShop} from '~/alvato/models/asset.ts'
+import {validAppKey} from '~/alvato/auth/apiAuth'
+import {validateAssignShop} from '~/alvato/models/asset'
 
 const debug = Debug('api:asset:assignShop')
 const prisma = new PrismaClient()

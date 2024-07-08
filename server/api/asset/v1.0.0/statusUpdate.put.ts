@@ -1,21 +1,21 @@
 import Debug from 'debug'
 import { PrismaClient,Prisma } from "@prisma/client"
 import {validAppKey} from '~/alvato/auth/apiAuth'
-import {validateNewShop} from '~/alvato/models/shop'
+import {validateStatusUpdate} from '~/alvato/models/asset'
 
-const debug = Debug('api:shop:newShop')
+const debug = Debug('api:asset:statusUpdate')
 const prisma = new PrismaClient()
 
 export default defineEventHandler(async(event)=>{
-    // Verify appKey and appSecret
-    // const isValidKey= await validAppKey(event)
-    // if(!isValidKey) {
-    //     throw createError({
-    //         statusCode:403,
-    //         statusMessage: 'unAuthorized'
-    //     })
-    // }
-
+    //Verify appKey and appSecret
+    const isValidKey= await validAppKey(event)
+    if(!isValidKey) {
+        throw createError({
+            statusCode:403,
+            statusMessage: 'unAuthorized'
+        })
+    }
+    
     const body = await readBody(event)
     debug('Body: ',body)
 
@@ -26,7 +26,7 @@ export default defineEventHandler(async(event)=>{
         })    
     }
 
-    const {error} = await validateNewShop(body)
+    const {error} = await validateStatusUpdate(body)
     if(error){
         throw createError({
             statusCode: 500,
@@ -34,19 +34,16 @@ export default defineEventHandler(async(event)=>{
         })   
     }
 
-    const shop = await prisma.shops.create({
+    const asset = await prisma.assets.update({
+        where:{ assetCode: body.assetCode},
         data:{
-            partnerCode: body.partnerCode,
-            shopCode: body.shopCode,
-            shopName: body.shopName,
-            uuid: body.uuid || '',
-            description: body.description || ''
+            assetStatus: body.status
         }
     })
 
     return{
         statusCode:200,
         statusMessage:'Success',
-        data:shop
+        data:asset
     }
 })

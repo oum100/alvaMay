@@ -63,3 +63,13 @@ export async function validateListByPagination(body:any){
     }).unknown(true)
     return schema.validate(body)
 }
+
+export async function validateStatusUpdate(body:any){
+    const schema = Joi.object({
+        // partnerCode: Joi.string().required(),
+        // shopCode: Joi.string().required(),
+        assetCode: Joi.string().required(),
+        status: Joi.string().required()
+    }).unknown(true)
+    return  schema.validate(body)
+}

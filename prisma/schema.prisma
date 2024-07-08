@@ -21,8 +21,8 @@ enum ORGS {
 }
 
 model Partners {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  partnerCode String    @unique
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  partnerCode String     @unique
   partnerName String
   partnerLogo String?
   appKey      String
@@ -34,28 +34,29 @@ model Partners {
   configs     Configs[]
   products    Products[]
   machines    Machines[]
-  createdAt   DateTime  @default(now()) @db.Date
-  updatedAt   DateTime? @default(now()) @db.Date
+  paymentPartner  PaymentPartner[]
+  createdAt   DateTime   @default(now()) @db.Date
+  updatedAt   DateTime?  @default(now()) @db.Date
 }
 
 model Users {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  uuid          String        @unique(map: "uuid")
-  email         String        @unique(map: "email")
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  uuid          String    @unique(map: "uuid")
+  email         String    @unique(map: "email")
   name          String
   password      String
-  emailVerified Boolean       @default(false)
-  isActive      Boolean       @default(true)
+  emailVerified Boolean   @default(false)
+  isActive      Boolean   @default(true)
   image         String?
-  organization  ORGS          @default(PARTNER) //organizeation default is PARTNER
-  role          ROLES         @default(OWNER)//@default(OWNER)
-  permission    String        @default("CRUD")
+  organization  ORGS      @default(PARTNER) //organizeation default is PARTNER
+  role          ROLES     @default(OWNER) //@default(OWNER)
+  permission    String    @default("CRUD")
   profile       Profiles?
-  partner       Partners?     @relation(fields: [partnerCode], references: [partnerCode])
+  partner       Partners? @relation(fields: [partnerCode], references: [partnerCode])
   partnerCode   String?
   shop          Shops[]
-  createdAt     DateTime      @default(now()) @db.Date
-  updatedAt     DateTime      @default(now()) @db.Date
+  createdAt     DateTime  @default(now()) @db.Date
+  updatedAt     DateTime  @default(now()) @db.Date
 }
 
 model Profiles {
@@ -97,172 +98,204 @@ enum GENDERS {
   FMALE
 }
 
-
 model Shops {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  shopCode      String    @unique
-  shopName      String
-  description   String?
-  assets        Assets[]
-  devices       Devices[]
-  user          Users?    @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
-  uuid          String?    
-  partner       Partners? @relation(fields: [partnerCode], references: [partnerCode])
-  partnerCode   String 
-  createdAt     DateTime  @default(now()) @db.Date
-  updatedAt     DateTime? @default(now()) @db.Date
-} 
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  shopCode    String    @unique
+  shopName    String
+  description String?
+  assets      Assets[]
+  devices     Devices[]
+  user        Users?      @relation(fields: [uuid], references: [uuid], onDelete: Cascade)
+  uuid        String?
+  partner     Partners?   @relation(fields: [partnerCode], references: [partnerCode])
+  partnerCode String
+  paymentPartner      PaymentPartner[]
+  createdAt           DateTime  @default(now()) @db.Date
+  updatedAt           DateTime? @default(now()) @db.Date
+}
 
 model Assets {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  assetCode     String    @unique
-  assetName     String?
-  assetType     String?
-  assetStatus   String
-  partner       Partners? @relation(fields: [partnerCode], references: [partnerCode])
-  partnerCode   String?  
-  shop          Shops?    @relation(fields: [shopCode], references: [shopCode], onDelete: Cascade)
-  shopCode      String?    
-  device        Devices?
-  machine       Machines?
-  product       Products[]
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  assetCode   String     @unique
+  assetName   String?
+  assetType   String?
+  assetStatus String
+  partner     Partners?  @relation(fields: [partnerCode], references: [partnerCode])
+  partnerCode String?
+  shop        Shops?     @relation(fields: [shopCode], references: [shopCode], onDelete: Cascade)
+  shopCode    String?
+  device      Devices?
+  machine     Machines?
+  product     Products[]  @relation(fields: [productID], references: [id])
+  productID   String[]    @db.ObjectId
   // An asset can have the same configuration as other asset.
-  config        Configs @relation(fields: [configCode], references: [configCode])
-  configCode    String
-  createdAt     DateTime    @default(now()) @db.Date
-  updatedAt     DateTime?   @default(now()) @db.Date
-} 
+  config      Configs    @relation(fields: [configCode], references: [configCode])
+  configCode  String
+  // cyberpayRequest   PaymentRequest[]    
+  createdAt   DateTime   @default(now()) @db.Date
+  updatedAt   DateTime?  @default(now()) @db.Date
+}
 
 model Devices {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  deviceName    String?
-  deviceMac     String      @unique
-  deviceType    String?
-  board         String?
-  deviceStatus  String
-  firmware    String?
-  replaceBy   String?     // new deviceMac
-  replacedAt  DateTime?   @db.Date
-  asset       Assets      @relation(fields: [assetCode], references: [assetCode])
-  assetCode   String      @unique
-  partner       Partners? @relation(fields: [partnerCode], references: [partnerCode])
-  partnerCode   String?    
-  shop          Shops?    @relation(fields: [shopCode], references: [shopCode], onDelete: Cascade)
-  shopCode      String?   
-  createdAt   DateTime    @default(now()) @db.Date
-  updatedAt   DateTime?   @default(now()) @db.Date
-} 
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  deviceName   String?
+  deviceMac    String    @unique
+  deviceType   String?
+  board        String?
+  deviceStatus String
+  firmware     String?
+  replaceBy    String? // new deviceMac
+  replacedAt   DateTime? @db.Date
+  asset        Assets    @relation(fields: [assetCode], references: [assetCode])
+  assetCode    String    @unique
+  partner      Partners? @relation(fields: [partnerCode], references: [partnerCode])
+  partnerCode  String?
+  shop         Shops?    @relation(fields: [shopCode], references: [shopCode], onDelete: Cascade)
+  shopCode     String?
+  createdAt    DateTime  @default(now()) @db.Date
+  updatedAt    DateTime? @default(now()) @db.Date
+}
 
 model Machines {
-  id            String        @id @default(auto()) @map("_id") @db.ObjectId
-  serailNumber  String        @unique
-  name          String
-  description   String?
-  type          String
-  model         String
-  status        String
-  orderAt       DateTime?     @db.Date
-  expiredAt     DateTime?     @db.Date
-  asset         Assets?       @relation(fields: [assetCode], references: [assetCode])
-  assetCode     String?       @unique
-  partner       Partners?   @relation(fields: [partnerCode], references:[partnerCode], onDelete: Cascade, onUpdate: Cascade)
-  partnerCode   String    
-  createdAt     DateTime      @default(now()) @db.Date
-  updatedAt     DateTime?     @default(now()) @db.Date  
-} 
-
-model Products{
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  sku           String      @unique
-  name          String      //display name
-  shortName     String?
-  description   String?
-  groupName     String?
-  price         Int
-  qty           Int
-  unit          String
-  asset         Assets?     @relation(fields: [assetCode], references: [assetCode])
-  assetCode     String?     
-  partner       Partners?   @relation(fields: [partnerCode], references:[partnerCode], onDelete: Cascade, onUpdate: Cascade)
-  partnerCode   String    
-  createdAt     DateTime    @default(now()) @db.Date
-  updatedAt     DateTime?   @default(now()) @db.Date  
+  id           String    @id @default(auto()) @map("_id") @db.ObjectId
+  serialNumber String    @unique
+  name         String
+  description  String?
+  type         String
+  model        String
+  status       String
+  orderAt      DateTime? @db.Date
+  expiredAt    DateTime? @db.Date
+  asset        Assets?   @relation(fields: [assetCode], references: [assetCode])
+  assetCode    String?   @unique
+  partner      Partners? @relation(fields: [partnerCode], references: [partnerCode], onDelete: Cascade, onUpdate: Cascade)
+  partnerCode  String
+  createdAt    DateTime  @default(now()) @db.Date
+  updatedAt    DateTime? @default(now()) @db.Date
 }
-model Configs {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  configCode    String      @unique
-  name          String
-  description   String?
-  assets        Assets[]
+
+model Products {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  sku         String    @unique
+  shortName   String?
+  description String?
+  type        String   //WASHER DRYER
+  price       Float
+  qty         Int
+  unit        String
+  
+  asset       Assets[]   @relation(fields: [assetID], references:[id] )
+  assetID     String[]   @db.ObjectId
+  // asset         Assets?     @relation(fields: [assetCode], references: [assetCode])
+  // assetCode     String?     
   partner       Partners?   @relation(fields: [partnerCode], references:[partnerCode], onDelete: Cascade, onUpdate: Cascade)
-  partnerCode   String      
-  host            Hosts[]
-  wifi            Wifis[]
-  mqtt            Mqtts[]
-  createdAt       DateTime    @default(now()) @db.Date
-  updatedAt       DateTime?   @default(now()) @db.Date  
+  partnerCode   String    
+
+  paymentRequest  PaymentRequest[]
+  createdAt   DateTime  @default(now()) @db.Date
+  updatedAt   DateTime? @default(now()) @db.Date
+}
+
+model Configs {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  configCode  String    @unique
+  name        String
+  description String?
+  assets      Assets[]
+  partner     Partners? @relation(fields: [partnerCode], references: [partnerCode], onDelete: Cascade, onUpdate: Cascade)
+  partnerCode String
+  host        Hosts[]
+  wifi        Wifis[]
+  mqtt        Mqtts[]
+  createdAt   DateTime  @default(now()) @db.Date
+  updatedAt   DateTime? @default(now()) @db.Date
 }
 
 model Hosts {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  apiHost       String      //hostname or ip address
-  apiPort       String      //
-  apiPath       String
-  hostName      String?
-  hostPort      String?
-  hostPath      String?
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  apiHost    String //hostname or ip address
+  apiPort    String //
+  apiPath    String
+  hostName   String?
+  hostPort   String?
+  hostPath   String?
   // config        Configs[]
-  config        Configs?     @relation(fields: [configCode], references: [configCode],onDelete: Cascade, onUpdate: Cascade)
-  configCode    String?     
-  createdAt     DateTime    @default(now()) @db.Date
-  updatedAt     DateTime?   @default(now()) @db.Date   
+  config     Configs?  @relation(fields: [configCode], references: [configCode], onDelete: Cascade, onUpdate: Cascade)
+  configCode String?
+  createdAt  DateTime  @default(now()) @db.Date
+  updatedAt  DateTime? @default(now()) @db.Date
 }
 
 model Wifis {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  ssid          String      
-  ssidPass      String
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  ssid       String
+  ssidPass   String
   // config        Configs[]
-  config        Configs?     @relation(fields: [configCode], references: [configCode], onDelete: Cascade, onUpdate: Cascade)
-  configCode    String?     
-  createdAt     DateTime    @default(now()) @db.Date
-  updatedAt     DateTime?   @default(now()) @db.Date   
+  config     Configs?  @relation(fields: [configCode], references: [configCode], onDelete: Cascade, onUpdate: Cascade)
+  configCode String?
+  createdAt  DateTime  @default(now()) @db.Date
+  updatedAt  DateTime? @default(now()) @db.Date
 }
 
 model Mqtts {
-  id            String      @id @default(auto()) @map("_id") @db.ObjectId
-  mqttHost      String
-  mqttPort      String
-  mqttUser      String
-  mqttPass      String
-  pubTopic      String
-  subTopic      String  
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  mqttHost   String
+  mqttPort   String
+  mqttUser   String
+  mqttPass   String
+  pubTopic   String
+  subTopic   String
   // config        Configs[]
-  config        Configs?     @relation(fields: [configCode], references: [configCode], onDelete: Cascade, onUpdate: Cascade)
-  configCode    String?     
-  createdAt     DateTime    @default(now()) @db.Date
-  updatedAt     DateTime?   @default(now()) @db.Date   
+  config     Configs?  @relation(fields: [configCode], references: [configCode], onDelete: Cascade, onUpdate: Cascade)
+  configCode String?
+  createdAt  DateTime  @default(now()) @db.Date
+  updatedAt  DateTime? @default(now()) @db.Date
 }
 
 model Transactions {
-  id                  String      @id @default(auto()) @map("_id") @db.ObjectId
-  partnerCode         String
-  shopCode            String
-  assetCode           String
-  qrGenID             String
-  paymentId           String     //notification ID
-  paymentBy           String
-  wallet              String
-  paymentType         String
-  transRef            String    
-  transDate           String
-  amount              Float
-  status              String
-  inProgress          String
-  createdAt           DateTime    @default(now()) @db.Date
-  updatedAt           DateTime?   @default(now()) @db.Date   
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  partnerCode String
+  shopCode    String
+  assetCode   String
+  productSku  String
+  amount      Float
+  paymentBy   String    //CASH, QR, etc
+  wallet      String
+
+  //Payment Request
+  paymentRequest  PaymentRequest? @relation(fields: [ paymentRequestId], references: [id])
+  paymentRequestId  String?     @db.ObjectId
+  qrGenId     String?    // QR request ID
+
+  //Paid Notify
+  paidNotify  String?    // paid notification ID
+
+  //Transaction status
+  status      String?
+  jobStart    DateTime?
+  jobFinish   DateTime?
+  jobRemain   Int
+
+  //Logging
+  createdAt   DateTime  @default(now()) @db.Date
+  updatedAt   DateTime? @default(now()) @db.Date
 }
 
+model activeTransaction {
+  id              String    @id @default(auto()) @map("_id") @db.ObjectId
+  transactionId   String    @db.ObjectId
+  startTime       DateTime  @db.Date
+}
+
+
+enum PAYMENT{
+  CASH
+  THAIQR
+  SLIPOK
+  MAEMANEE
+  ALIPAY
+  LINEPAY
+}
 
 
 model Provinces {
@@ -331,3 +364,83 @@ model SCBPaymentNotify {
   equivalentCurrencyCode String? //                          Alipay    WeChatPay
   companyId              String? //                          Alipay    WeChatPay
 }
+
+
+
+model PaymentPartner {
+  id                    String          @id @default(auto()) @map("_id") @db.ObjectId
+  name                  String          //Cyberpay , Paysolution, Maemanee, slipok
+  paymentId             String          @unique
+  secretKey             String
+  paymentUrl            String
+  sandboxUrl            String
+  paymentChannel        CyberPaymentChannel[]
+  partner               Partners?       @relation(fields: [partnerCode], references: [partnerCode], onDelete: Cascade, onUpdate: Cascade)
+  partnerCode           String
+  shop                  Shops?          @relation(fields: [shopCode], references: [shopCode], onDelete: Cascade)
+  shopCode              String?
+  createAt              DateTime        @db.Date @default(now())
+  updatedAt             DateTime        @db.Date @default(now()) 
+}
+
+model PaymentRequest {
+  id                      String  @id @default(auto()) @map("_id") @db.ObjectId
+  paymentName             String  //Cyberpay , Paysolution, Maemanee, slipok
+  ref1                    String  // 20 chars  Auto generate
+  ref2                    String
+  ref3                    String
+  qrText                  String
+  qrImage                 String  //Svg pattern 
+  partnerCode             String 
+  shopCode                String  
+  assetCode               String  
+  product                 Products  @relation(fields: [productSku], references: [sku])
+  productSku              String
+  amount                  Float   // with 2 digit floating point
+  createAt                DateTime        @db.Date @default(now())
+  transaction             Transactions[]
+  cyberpayPaidNotify      CyberpayPaidNotify[]
+  // paySolutionPaidNotify   paySolutionPaidNotity[]
+  // SCBPaymentNotify       SCBPaymentNotify[]
+  // slipokPaidNotify        slipokPaidNotify[]
+}
+
+
+
+model PaymentSentNotify {
+  id                     String  @id @default(auto()) @map("_id") @db.ObjectId
+  paymentPartner         String  //Cyberpay, Paysolution, SlipOk, Cash
+  targetID               String  //Target webhook or mqtt
+  transactionId          String
+  createAt               DateTime        @db.Date @default(now())
+}
+
+
+
+model CyberpayPaidNotify {
+  id                     String  @id @default(auto()) @map("_id") @db.ObjectId
+  payment_channel_id     String
+  transaction_id         String
+  ref_1                  String    
+  ref_2                  String
+  ref_3                  String
+  service_fee            Float
+  bank_code              String
+  createdAt              DateTime          @db.Date @default(now())
+  paymentRequest         PaymentRequest?    @relation(fields: [paymentRequestId], references: [id])
+  paymentRequestId       String?            @db.ObjectId
+  // transaction            Transactions       @relation(fields: [transactionId], references: [id])
+  // transactionId           String            @db.ObjectId
+}
+
+model CyberPaymentChannel {
+  id                     String         @id @default(auto()) @map("_id") @db.ObjectId
+  channelId              String         @unique
+  channelName            String
+  paymentPartner         PaymentPartner   @relation(fields: [paymentId], references: [paymentId])
+  paymentId              String           
+  createAt               DateTime        @db.Date @default(now())
+  updatedAt             DateTime        @db.Date @default(now())
+}
+
+
