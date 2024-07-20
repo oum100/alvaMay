@@ -47,6 +47,16 @@ export default defineEventHandler(async(event)=>{
         select:{
             partnerCode: true,
             partnerName: true,
+            users:{
+                // where:{
+                //     role:'OWNER'
+                // },
+                select:{
+                    uuid:true,
+                    name:true,
+                    role:true
+                }
+            },
             // shops:{
             //     select:{
             //         shopCode:true

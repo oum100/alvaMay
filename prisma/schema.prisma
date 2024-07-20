@@ -131,6 +131,10 @@ model Assets {
   // An asset can have the same configuration as other asset.
   config      Configs    @relation(fields: [configCode], references: [configCode])
   configCode  String
+
+  //Transaction
+  transaction Transactions[]
+
   // cyberpayRequest   PaymentRequest[]    
   createdAt   DateTime   @default(now()) @db.Date
   updatedAt   DateTime?  @default(now()) @db.Date
@@ -256,7 +260,8 @@ model Transactions {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   partnerCode String
   shopCode    String
-  assetCode   String
+  asset       Assets        @relation(fields: [assetCode], references: [assetCode])
+  assetCode   String    
   productSku  String
   amount      Float
   paymentBy   String    //CASH, QR, etc
@@ -268,31 +273,14 @@ model Transactions {
   qrGenId                   String?    // QR request ID
 
   //Paid Notify
+  paidNotify_id             String?              @db.ObjectId @unique
+
   cyberpayPaidNotify        CyberpayPaidNotify?       @relation(fields: [paidNotify_id], references: [id])
   scbPaidNotify             SCBPaymentNotify?         @relation(fields: [paidNotify_id], references: [id])
   slipokPaidNotify          SlipOkPaidNotify?         @relation(fields: [paidNotify_id], references: [id])
   paysolutionPaidNotify     PaysolutionPaidNotify?    @relation(fields: [paidNotify_id], references: [id])
-
-  paidNotify_id             String?              @db.ObjectId @unique
-
-  // cyberpayPaidNotify        CyberpayPaidNotify?  @relation(fields: [cyberpayPaid_Id], references: [id])
-  // cyberpayPaid_Id           String?              @db.ObjectId @unique
-
-  // scbPaidNotify             SCBPaymentNotify?    @relation(fields: [cyberpayPaid_Id], references: [id])
-  // scbPaid_Id                String?              @db.ObjectId @unique
-
-  // slipokPaidNotify          SlipOkPaidNotify?    @relation(fields: [slipokPaid_Id], references: [id])
-  // slipokPaid_Id             String?              @db.ObjectId @unique
-
-  // paysolutionPaidNotify     PaysolutionPaidNotify?    @relation(fields: [paysolutionPaid_Id], references: [id])
-  // paysolutionPaid_Id        String?              @db.ObjectId @unique
-
-//Paid Notify
-  // cyberpayPaidNotify        CyberpayPaidNotify?    // paid notification ID
-  // scbPaidNotify             SCBPaymentNotify?
-  // slipOk                    SlipOkPaidNotify?
-  // paysolutionPaidNotify     PaysolutionPaidNotify?
-
+  cashPaidNotify            CashPaidNotify?           @relation(fields: [paidNotify_id], references: [id])
+  
   //Transaction status
   status      String?
   jobStart    DateTime?
@@ -414,7 +402,7 @@ model PaymentPartner {
 
 model PaymentRequest {
   id                      String  @id @default(auto()) @map("_id") @db.ObjectId
-  paymentName             String  //Cyberpay , Paysolution, Maemanee, slipok
+  paymentBy               String  //Cyberpay , Paysolution, Maemanee, slipok
   ref1                    String  // 20 chars  Auto generate
   ref2                    String
   ref3                    String
@@ -432,6 +420,7 @@ model PaymentRequest {
   paySolutionPaidNotify   PaysolutionPaidNotify[]
   SCBPaymentNotify        SCBPaymentNotify[]
   slipokPaidNotify        SlipOkPaidNotify[]
+  // cashPaidNotify          CashPaidNotify[]
 }
 
 
@@ -492,4 +481,12 @@ model PaysolutionPaidNotify {
   transaction            Transactions?
   // transaction            Transactions       @relation(fields: [transactionId], references: [id])
   // transactionId          String             @db.ObjectId @unique
+}
+
+model CashPaidNotify{
+  id                     String  @id @default(auto()) @map("_id") @db.ObjectId
+  transaction_id         String
+  // paymentRequest         PaymentRequest?    @relation(fields: [paymentRequestId], references: [id])
+  // paymentRequestId       String?            @db.ObjectId
+  transaction            Transactions?
 }

@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import Debug from 'debug'
 import { customAlphabet } from 'nanoid'
+import { isNullishCoalesce } from "typescript";
 import {validatePaymentRequest} from '~/alvato/models/payment'
 
 const debug = Debug('api:asset:listAllByPartner')
@@ -38,7 +39,7 @@ export default defineEventHandler(async(event) =>{
                 select:{
                     shopName:true,
                     paymentPartner:{
-                        where:{name:body.paymentChannel.toUpperCase()},
+                        where:{name:body.paymentBy.toUpperCase()},
                         select:{
                             name:true,
                             paymentChannel:{
@@ -68,63 +69,136 @@ export default defineEventHandler(async(event) =>{
         }
     })
 
-    // return asset
+    // return asset   // For test only
     
-    //Getting paymentPartner information.
-    // const paymentPartner = await prisma.paymentPartner.findFirstOrThrow({
-    //     where: {
-    //         shopCode : asset.shopCode as string
-    //     }
-    // })
 
-    
-    const url = asset.shop?.paymentPartner[0].paymentUrl as string
-    const ref_1 = nanoid()
-
-    const paymentId = asset.shop?.paymentPartner[0].paymentId as string
-    const secretKey = asset.shop?.paymentPartner[0].secretKey as string
-    const paymentChannel = asset.shop?.paymentPartner[0].paymentChannel[0].channelId as string
-    const paymentName = asset.shop?.paymentPartner[0].name as string
-
-    // console.log("paymentId: ",paymentId)
-    // console.log("secretKey: ", secretKey)
-
-    // return asset
-    const cyberpay:any = await $fetch(url,{
-        method: 'POST',
-        headers:{
-            partnerId: paymentId,
-            secretKey: secretKey
-        },
-        body:{
-            payment_channel_id : paymentChannel,  // For cyberpay
-            ref_1: ref_1,
-            amount: asset.product[0].price
-        }
-    })
+    let resultData = null
+    let url = null
+    let ref_1 = nanoid()
+    let paymentBy = body.paymentBy.toUpperCase()
 
     
-    // console.log(ref_1)
-    const requestData:any = {
-        partnerCode: asset.partnerCode,
-        shopCode: asset.shopCode,
-        assetCode: asset.assetCode,
-        productSku: asset.product[0].sku,
-        amount : asset.product[0].price,
-
-        // paymentPartner: paymentName,
-        paymentName: paymentName,
-        ref1: ref_1,
-        ref2: cyberpay.data.ref_2,
-        ref3: cyberpay.data.ref_3,
-        qrText: cyberpay.data.qr_text,
-        qrImage: cyberpay.data.qr_image
+    
+    switch(paymentBy){
+        case "CASH":        
+            resultData = await prisma.paymentRequest.create({
+                data: {
+                    partnerCode: asset.partnerCode as string,
+                    shopCode: asset.shopCode as string,
+                    assetCode: asset.assetCode,
+                    productSku: asset.product[0].sku,
+                    amount : asset.product[0].price,
+            
+                    // paymentPartner: paymentName,
+                    paymentBy: paymentBy,
+                    ref1: ref_1,
+                    ref2: "",
+                    ref3: "",
+                    qrText: "",
+                    qrImage: ""
+                }
+            })   
+            break;
+        case "CYBERPAY":
+            url = asset.shop?.paymentPartner[0].paymentUrl as string
+            // ref_1 = nanoid()
+        
+            const paymentId = asset.shop?.paymentPartner[0].paymentId as string
+            const secretKey = asset.shop?.paymentPartner[0].secretKey as string
+            const paymentChannel = asset.shop?.paymentPartner[0].paymentChannel[0].channelId as string
+            // paymentBy = asset.shop?.paymentPartner[0].name as string
+        
+            // console.log("paymentId: ",paymentId)
+            // console.log("secretKey: ", secretKey)
+        
+            // return asset
+            const cyberpay:any = await $fetch(url,{
+                method: 'POST',
+                headers:{
+                    partnerId: paymentId,
+                    secretKey: secretKey
+                },
+                body:{
+                    payment_channel_id : paymentChannel,  // For cyberpay
+                    ref_1: ref_1,
+                    amount: asset.product[0].price
+                }
+            })
+        
+            
+            // console.log(ref_1)
+            const requestData:any = {
+                partnerCode: asset.partnerCode,
+                shopCode: asset.shopCode,
+                assetCode: asset.assetCode,
+                productSku: asset.product[0].sku,
+                amount : asset.product[0].price,
+        
+                // paymentPartner: paymentName,
+                paymentBy: paymentBy,
+                ref1: ref_1,
+                ref2: cyberpay.data.ref_2,
+                ref3: cyberpay.data.ref_3,
+                qrText: cyberpay.data.qr_text,
+                qrImage: cyberpay.data.qr_image
+            }
+        
+            resultData = await prisma.paymentRequest.create({
+                data: requestData
+            })            
+            break;
     }
 
-    const resultData = await prisma.paymentRequest.create({
-        data: requestData
-    })
-
+    // if(paymentBy === 'CYBERPAY'){
+    //     url = asset.shop?.paymentPartner[0].paymentUrl as string
+    //     ref_1 = nanoid()
+    
+    //     const paymentId = asset.shop?.paymentPartner[0].paymentId as string
+    //     const secretKey = asset.shop?.paymentPartner[0].secretKey as string
+    //     const paymentChannel = asset.shop?.paymentPartner[0].paymentChannel[0].channelId as string
+    //     // paymentBy = asset.shop?.paymentPartner[0].name as string
+    
+    //     // console.log("paymentId: ",paymentId)
+    //     // console.log("secretKey: ", secretKey)
+    
+    //     // return asset
+    //     const cyberpay:any = await $fetch(url,{
+    //         method: 'POST',
+    //         headers:{
+    //             partnerId: paymentId,
+    //             secretKey: secretKey
+    //         },
+    //         body:{
+    //             payment_channel_id : paymentChannel,  // For cyberpay
+    //             ref_1: ref_1,
+    //             amount: asset.product[0].price
+    //         }
+    //     })
+    
+        
+    //     // console.log(ref_1)
+    //     const requestData:any = {
+    //         partnerCode: asset.partnerCode,
+    //         shopCode: asset.shopCode,
+    //         assetCode: asset.assetCode,
+    //         productSku: asset.product[0].sku,
+    //         amount : asset.product[0].price,
+    
+    //         // paymentPartner: paymentName,
+    //         paymentBy: paymentBy,
+    //         ref1: ref_1,
+    //         ref2: cyberpay.data.ref_2,
+    //         ref3: cyberpay.data.ref_3,
+    //         qrText: cyberpay.data.qr_text,
+    //         qrImage: cyberpay.data.qr_image
+    //     }
+    
+    //     resultData = await prisma.paymentRequest.create({
+    //         data: requestData
+    //     })
+    // }
+    
+ 
     return {
         statusCode:200,
         statusMessage:'Success',

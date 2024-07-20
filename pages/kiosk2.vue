@@ -1,41 +1,43 @@
-// pages/kiosk.vue
 <template>
-  <q-page>
-    <q-card>
-      <q-card-section>
-        <div class="text-h6">Kiosk</div>
-      </q-card-section>
-      <q-card-section>
-        <div class="row q-col-gutter-md">
-          <div
-            v-for="machine in machines"
-            :key="machine.id"
-            class="col-xs-6 col-sm-4 col-md-3"
-          >
-            <q-btn @click="selectMachine(machine)">
-              <q-icon :name="machine.type === 'washer' ? 'mdi-washing-machine' : 'mdi-tumble-dryer'" />
-              <div>{{ machine.name }}</div>
-            </q-btn>
+  <q-layout view="hHh lpR fFf">
+    <q-header elevated class="bg-primary text-white">
+      <q-toolbar>
+        <q-toolbar-title>เครื่องซักผ้าและอบผ้า</q-toolbar-title>
+      </q-toolbar>
+    </q-header>
+
+    <q-page-container>
+      <q-page padding>
+        <div class="row q-col-gutter-md q-mb-md">
+          <div v-for="dryer in dryers" :key="dryer.id" class="col-3">
+            <MachineCard :machine="dryer" @select="selectMachine" />
           </div>
         </div>
-      </q-card-section>
-    </q-card>
-  </q-page>
+        <div class="row q-col-gutter-md">
+          <div v-for="washer in washers" :key="washer.id" class="col-3">
+            <MachineCard :machine="washer" @select="selectMachine" />
+          </div>
+        </div>
+      </q-page>
+    </q-page-container>
+  </q-layout>
 </template>
 
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+const { washers, dryers, initMachines, toggleMachineStatus } = useMachines()
 
-const machines = ref([
-  { id: 1, name: 'Dryer 1', type: 'dryer' },
-  { id: 2, name: 'Washer 1', type: 'washer' },
-  { id: 3, name: 'Dryer 2', type: 'dryer' },
-  { id: 4, name: 'Washer 2', type: 'washer' },
-  // Add more machines as needed
-]);
+  onMounted(() => {
+    initMachines()
+  })
 
-const selectMachine = (machine) => {
-  // Handle machine selection logic here
-  console.log(`Selected machine: ${machine.name}`);
-};
+  const selectMachine = (machine: any, price: number) => {
+    $q.dialog({
+      title: 'ยืนยันการเลือก',
+      message: `คุณเลือก${machine.type === 'washer' ? 'เครื่องซัก' : 'เครื่องอบ'}หมายเลข ${machine.number} ราคา ${price} บาท ใช่หรือไม่?`,
+      ok: 'ยืนยัน',
+      cancel: 'ยกเลิก'
+    }).onOk(() => {
+      toggleMachineStatus(machine)
+    })
+  }
 </script>

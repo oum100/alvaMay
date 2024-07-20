@@ -10,7 +10,7 @@ export default [
     {
       title: "Partners",
       to: "/partners",
-      icon:"store",
+      icon:"diversity_3",
       separator:false,
       children:[]
     },
@@ -23,7 +23,7 @@ export default [
     },
     {
       title: "Transactions",
-      to: "/transactions",
+      to: "/transactions/0",
       icon:"list",
       separator:false,
       children:[]
@@ -31,21 +31,21 @@ export default [
     {
       title: "Assets",
       to: "/assets/0",
-      icon:"memory",
-      separator:false,
-      children:[]
-    },
-    {
-      title: "Machines",
-      to: "/machines/0",
-      icon:"memory",
+      icon:"devices_other",
       separator:false,
       children:[]
     },
     {
       title: "Devices",
       to: "/devices/0",
-      icon:"memory",
+      icon:"devices",
+      separator:false,
+      children:[]
+    },
+    {
+      title: "Machines",
+      to: "/machines/0",
+      icon:"dns",
       separator:false,
       children:[]
     },
@@ -59,14 +59,14 @@ export default [
     {
       title: "Products",
       to: "/products",
-      icon:"memory",
+      icon:"category",
       separator:false,
       children:[]
     },
     {
       title: "Users",
       to: "/users/0",
-      icon:"memory",
+      icon:"group",
       separator:false,
       children:[]
     },

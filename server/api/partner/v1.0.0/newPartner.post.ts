@@ -2,7 +2,7 @@ import Debug from 'debug'
 import {validateNewPartner} from '~/alvato/models/partner'
 import jwt  from 'jsonwebtoken'
 import { PrismaClient,Prisma } from "@prisma/client"
-import { nanoid,customAlphabet} from 'nanoid'
+import { customAlphabet} from 'nanoid'
 import { RuntimeConfig } from 'nuxt/schema'
 // import { Base64 } from 'js-base64'
 import bcrypt from 'bcrypt'
@@ -10,7 +10,7 @@ import {defaultcfg} from '~/alvato/models/defaultCFG'
 
 const debug = Debug('api:partner:newPartner')
 const prisma = new PrismaClient();
-const shortNanoid = customAlphabet('1234567890')
+const nanoid = customAlphabet('1234567890',5)
 
 
 
@@ -32,7 +32,7 @@ export default defineEventHandler( async(event) =>{
         })        
     }
 
-    const partnerCode = shortNanoid(5)
+    const partnerCode = nanoid()
     const authAppSecret = useRuntimeConfig().AUTH_APPSECRET
 
     // console.log("authappSecret: ",authAppSecret)
@@ -56,12 +56,12 @@ export default defineEventHandler( async(event) =>{
             configs:{
                 create:{
                     // partnerCode: partnerCode,
-                    configCode: defaultcfg.config.configCode,
-                    name: defaultcfg.config.name,
+                    configCode: partnerCode+'-'+defaultcfg.config.configCode,
+                    name: partnerCode+'-'+defaultcfg.config.name,
                     description: defaultcfg.config.description,
                     wifi:{createMany:{data:defaultcfg.wifi}},
                     host:{createMany:{data:defaultcfg.host}},
-                    mqtt:{ createMany:{data:defaultcfg.mqtt}}
+                    mqtt:{createMany:{data:defaultcfg.mqtt}}
                 }
             }
         },

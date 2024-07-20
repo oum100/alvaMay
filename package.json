@@ -41,6 +41,7 @@
     "pinia": "^2.1.7",
     "quasar": "^2.15.4",
     "sass": "^1.75.0",
+    "sweetalert2": "^11.12.2",
     "vue": "^3.4.21",
     "vue-router": "^4.3.0",
     "vue3-apexcharts": "^1.5.2",

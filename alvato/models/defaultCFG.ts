@@ -1,7 +1,7 @@
 export const defaultcfg = {
     config:{
         configCode:"CFG000",
-        name: "CFG-000",
+        name: "CFG000",
         description: "This is default configuration for IOT asset",
     },
     wifi:[

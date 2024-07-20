@@ -17,7 +17,7 @@ export async function validateNewPaymentPartner(body:any){
 
 export async function validatePaymentRequest(body:any){
     const schema = Joi.object({
-        paymentChannel:Joi.string().required(),
+        paymentBy:Joi.string().required(),
         channelId: Joi.string(),
         assetCode: Joi.string().required(),
         productSku: Joi.string().required(),

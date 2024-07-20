@@ -56,7 +56,7 @@ export default defineEventHandler(async(event) =>{
                     assetCode: paymentReq.assetCode,
                     productSku: paymentReq.productSku,
                     amount: paymentReq.amount ,
-                    paymentBy: paymentReq.paymentName,
+                    paymentBy: paymentReq.paymentBy,
                     // paymentRequestId: paymentReq.id,
 
                     qrGenId: body.qrGenId || "",

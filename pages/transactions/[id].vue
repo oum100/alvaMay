@@ -40,6 +40,7 @@
             binary-state-sort
             table-header-style="background: #eeeeee"
             @request="onRequest" 
+            dense
         >
 
             <template #top>
@@ -81,19 +82,112 @@
             <template #body-cell-assetName="props" >
                 <q-td :props = "props" >
                     {{ props.row.assetName }}
+                    <q-tooltip anchor="top middle">
+                      assetCode: 
+                      {{ props.row.assetCode }}
+                    </q-tooltip>
                 </q-td>
             </template>
 
-            <template #body-cell-assetCode="props" >
-                <q-td :props = "props" >
-                    {{ props.row.assetCode }}
-                </q-td>
+            <template #body-cell-price="props">
+              <q-td :props = "props" > 
+                  {{ props.row.price }}
+                <q-tooltip anchor="top middle">
+                  Price: {{ props.row.productPrice }}<br>
+                  SKU: {{props.row.productSku}}<br>
+                  QTY: {{  props.row.productQty }} {{ props.row.asset.product[0].unit }}
+                </q-tooltip>
+              </q-td>
+            </template>
+
+            <template #body-cell-paidNotify = "props">
+              <q-td :props = "props" >
+                <q-btn flat rounded @click="clickPaidNotify(props.row.index)">
+                  {{ props.row.paidNotify }}
+                  <q-tooltip anchor="top middle">
+                    Transactions_id: {{props.row.paymentTrans}}
+                  </q-tooltip>
+                </q-btn>
+              </q-td>  
+            </template>
+
+            <template #body-cell-actions="props">
+              <q-td :props = "props" >
+                  <q-btn flat rounded icon="edit" @click="clickEdit(props.row.index)"></q-btn>
+                  <q-btn flat rounded icon="delete" color="red" ></q-btn>
+              </q-td>
             </template>
         </q-table>           
         <div class="q-mt-md">
-            Selected: {{ JSON.stringify(selected) }}
+            Selected: {{JSON.stringify(selected) }}
         </div>
     </div>
+
+  
+    <div>
+      <q-dialog v-model="clickPaidNotifyFlag" 
+      persistent transition-show="flip-down" transition-hide="flip-up"
+      backdrop-filter="blur(4px) saturate(150%)"
+      >
+        <q-card style="width:800px;max-width: 80vw; height: 450px;">
+          <q-toolbar class="bg-primary text-white">
+            <q-avatar>
+              <img src="/images/alvato/Alvato.png">
+            </q-avatar>
+
+            <q-toolbar-title><span class="text-weight-bold">Payment Information</span></q-toolbar-title>
+
+            <q-btn flat round dense icon="close" v-close-popup />
+          </q-toolbar>
+          <!-- <q-card-section class="row items-center q-pb-none bg-teal text-white" >
+            <div class="text-h6">Paid Notify Information</div>
+            <q-space />
+            <q-btn icon="close" flat round dense v-close-popup />
+          </q-card-section> -->
+          <q-card-section v-if="selectedRow.paymentBy == 'CASH'">
+            Payment By: {{ selectedRow.paymentBy }}
+            <div class="text-weight-bold">Payment Request:</div>
+          </q-card-section>
+          <q-card-section v-else>
+            <div class="row">
+              <div class="col-6 q-gutter-sm">
+                <div><span class="label text-weight-bold ">Payment By: </span>{{ selectedRow.paymentBy }}</div>
+                <div><span class="label text-weight-bold ">Transaction ID: </span> {{ selectedRow.cyberpayPaidNotify.transaction_id }}</div>
+                <div><span class="label text-weight-bold ">Reference 1: </span> {{selectedRow.cyberpayPaidNotify.ref_1}}</div>
+                <div><span class="label text-weight-bold ">Reference 2: </span> {{selectedRow.cyberpayPaidNotify.ref_2}}</div>
+                <div><span class="label text-weight-bold ">Reference 3: </span>{{selectedRow.cyberpayPaidNotify.ref_3}}</div>
+                <div><span class="label text-weight-bold ">Service Fee: </span> {{selectedRow.cyberpayPaidNotify.service_fee }}</div>
+              </div>
+              <div class="col-6 q-gutter-sm">
+                <span class="label text-weight-bold text-deep-orange">Payment Request:</span>
+                {{ selectedRow.cyberpayPaidNotify.paymentRequest.id }}
+
+                <q-input label="QR Text" v-model="selectedRow.cyberpayPaidNotify.paymentRequest.qrText" autogrow>
+                  <template v-slot:label>
+                    <span class="text-weight-bold text-deep-orange">QR Text</span>
+                  </template>
+                  <template v-slot:append>
+                    <q-icon name="content_copy" />
+                    <q-tooltip>copy QR text</q-tooltip>
+                  </template>
+                </q-input>
+                <br>
+                <span class="label text-weight-bold text-deep-orange">QR Image</span>
+                <div class="text-center">
+                  <img :src="qrImage + selectedRow.cyberpayPaidNotify.paymentRequest.qrImage" width="150" height="150">
+                </div>
+              </div>
+            </div>
+
+          </q-card-section>
+          <!-- <q-card-actions align="right" class="bg-white text-teal">
+            <q-btn flat label="OK" v-close-popup />
+          </q-card-actions> -->
+        </q-card>
+      </q-dialog>
+    </div> 
+ 
+
 </template>
 
 
@@ -204,6 +298,7 @@
     const filter:any = ref('')
     const loading = ref(false)
     const selected = ref([])
+    const selectedRow:any = ref([])
     const pagination= ref({
         sortBy: 'desc',
         descending: false,
@@ -211,6 +306,10 @@
         rowsPerPage: 20,
         rowsNumber:1
     })
+
+    let clickEditFlag = ref(false)
+    const clickPaidNotifyFlag = ref(false)
+    let qrImage = ref('data:image/png;base64,')
 
     //To Create list of ListPartnerOption
     let partnerSelected = ref('ALL')
@@ -242,15 +341,18 @@
 
     const columns = [
         {name: 'index', label: 'No', field: 'index', align: 'left', sortable: true},
-        {name: 'date', label: 'Date', field: 'createAt', align: 'left', sortable: true},
+        {name: 'date', label: 'Date', field: 'date', align: 'left', sortable: true},
+        {name: 'assetName', label: 'Asset Name', field: 'assetName' ,align: 'center', sortable: true },
+        // {name: 'assetCode', label: 'Asset Code', field: 'assetCode' ,align: 'center', sortable: true },
         // {name: 'partnerName', label: 'Partner', field: 'partnerName', align: 'left', sortable: true},
         // {name: 'shopName', label: 'Shop', field: 'shopName', align: 'left', sortable: true},
-        {name: 'transaction', label: 'Transaction', field: 'transactionId', align: 'left', sortable: true},
-        {name: 'assetName', label: 'Asset', field: 'assetName' ,align: 'center', sortable: true },
-        {name: 'paymentBy', label: 'Payment By', field: 'paymentName', align: 'left', sortable: true},
-        {name: 'amount', label: 'Amount', field: 'amount', align: 'left', sortable: true},
+
+        {name: 'paymentBy', label: 'Payment By', field: 'paymentBy', align: 'left', sortable: true},
+        {name: 'price', label: 'Price', field: 'price', align: 'left', sortable: true},
         {name: 'status', label: 'Status', field: 'status', align: 'left', sortable: true},
         {name: 'jobStatus', label: 'Job Status', field: 'jobStatus', align: 'left', sortable: true},
+        {name: 'paidNotify', label: 'Paid Notify', field: 'paidNotify', align: 'left', sortable: true},
+        
 
         // {name: 'updatedAt', label: 'Last Update', field: 'updatedAt', align: 'left', sortable: false},
         {name: 'actions', label: 'Actions', field: 'actions', align: 'center', sortable: false}
@@ -302,7 +404,7 @@
         //Fetch from srver
         // const {data:dataTable} = await useFetch('/api/asset/v1.0.0/getAll')
         loading.value = true
-        const {data:dataTable} = await $fetch('/api/shop/v1.0.0/listByPagination',{
+        const {data:dataTable} = await $fetch('/api/transaction/v1.0.0/listByPagination',{
             method:'POST',
             body: {
                 "partnerCode":partnerSelected.value,
@@ -311,16 +413,8 @@
                 "rowsNumber":fetchCount,
             }
         })
-        console.log('dataTable: ',dataTable)
-        // rows = rows.concat(dataTable.value?.data)
-        // console.log("Rows: ",rows)
-
-        // rows.forEach((row:any,index:number) => {
-        //     row.index = startRow+index+1
-        //     row.partnerName = row.partner?.partnerName
-        //     row.email = row.user?.email
-        //     row.asset = row._count.assets
-        // }) 
+        console.log('Transaction: ',dataTable)
+ 
 
         rows.value = dataTable as any
         console.log('Rows: ',rows.value)
@@ -356,9 +450,33 @@
 
         rows.value.forEach((row:any,index:number) => {
             row.index = startRow+index+1
-            row.partnerName = row.partner?.partnerName
-            row.email = row.user?.email
-            row.asset = row._count.assets
+            row.date =  new Intl.DateTimeFormat('en-GB', {
+                dateStyle: 'short',
+                timeStyle: 'medium',
+                timeZone: 'Asia/Bangkok',
+            }).format(new Date(row.createdAt))
+            row.paidNotify = row.paidNotify_id
+            row.assetName = row.asset.assetName
+            row.paymentBy = row.paymentBy
+            row.price = row.amount
+            row.jobStatus = row.jobRemain
+            row.productSku = row.asset.product[0].sku
+            row.productPrice = row.asset.product[0].price
+            row.productQty = row.asset.product[0].qty
+     
+            // console.log("cyberpayPaidNotify",row.cyberpayPaidNotify.transaction_id)
+            // console.log("cashPaidNotify",row.cashPaidNotify.transaction_id)
+
+            switch(row.paymentBy){
+              case 'CYBERPAY':
+                row.paymentTrans = row.cyberpayPaidNotify.transaction_id
+                break;
+              case 'CASH':
+                row.paymentTrans = row.cashPaidNotify.transaction_id
+                // row.paymentTrans = row.paymentBy
+                break;
+            }
+
         })  
         loading.value = false
     }
@@ -399,6 +517,16 @@
         return rowsCount
     }
 
+    async function clickEdit(inx:any){
+
+    }
+
+    async function clickPaidNotify(inx:any){
+      clickPaidNotifyFlag.value = true
+      console.log("Index: ",inx-1)
+      selectedRow.value = rows.value[inx-1]
+      console.log(selectedRow.value)
+    }
 
 </script>
 

@@ -128,6 +128,7 @@
         {name: 'uuid', label: 'UUID', field: 'uuid' , align: 'left',sortable: true,style: 'width: 30px'},
         {name: 'email', label: 'Email', field: 'email', align: 'left', sortable: true,style: 'width: 30px'},
         {name: 'isActive', label: 'Is Active', field: 'isActive', align: 'left', sortable: false,style: 'width: 30px'},
+        {name: 'partnerName', label: 'Partner', field: 'partnerName', align: 'left', sortable: true,style: 'width: 30px'},
         {name: 'organization', label: 'Organization', field: 'organization', align: 'left', sortable: true,style: 'width: 30px'},
         {name: 'role', label: 'Role', field: 'role', align: 'left', sortable: true,style: 'width: 30px'},
         {name: 'permission', label: 'Permission', field: 'permission', align: 'left', sortable: false,style: 'width: 30px'},
@@ -203,11 +204,12 @@
         // }) 
 
         rows.value = dataTable as any
-        console.log('Rows: ',rows.value)
+        // console.log('Rows: ',rows.value)
 
         const data2 = rows.value.slice()
         // const data2 = dataTable.value?.data.slice()
-        console.log("Sorted->Data Before",data2)
+        // console.log("Sorted->Data Before",data2)
+
         if(sortBy){
           const sortFn = 
             sortBy ==='name'
@@ -241,14 +243,16 @@
             )
   
           rows.value = data2?.sort(sortFn)
-          console.log("Sorted->returnedData",data2)
+        //   console.log("Sorted->returnedData",data2)
         }         
 
         rows.value.forEach((row:any,index:number) => {
             row.index = startRow+index+1
             row.shop = row._count.shop
             row.profile = row.profile.firstName
+            row.partnerName = row.partner.partnerName 
         })  
+
         loading.value = false
     }
 

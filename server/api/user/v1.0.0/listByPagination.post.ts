@@ -56,12 +56,17 @@ export default defineEventHandler(async(event)=>{
                 permission:true,
                 isActive:true,
                 profile:true,
+                partner:{
+                    select:{
+                        partnerName:true
+                    }
+                },
                 _count:{
                     select:{
                         shop:true
                     }
                 }
-            }
+            },
         })
     }else{
         listResult = await prisma.users.findMany({
@@ -75,6 +80,11 @@ export default defineEventHandler(async(event)=>{
                 permission:true,
                 isActive:true,
                 profile:true,
+                partner:{
+                    select:{
+                        partnerName:true
+                    }
+                },
                 _count:{
                     select:{
                         shop:true

@@ -148,7 +148,7 @@
     </div>
   </template>
     
-    <script setup lang="ts">
+  <script setup lang="ts">
     //   import { useRouter } from "vue-router"
 
       const route = useRoute()
@@ -377,5 +377,5 @@
           tableRef.value.requestServerInteraction()
       }
       
-    </script>
+  </script>
     

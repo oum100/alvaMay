@@ -1,7 +1,9 @@
 import Debug from 'debug'
 import {PrismaClient, Prisma} from "@prisma/client"
+import { nanoid } from 'nanoid'
 import {validAppKey} from '~/alvato/auth/apiAuth'
 import {validateNewTransaction} from '~/alvato/models/transaction'
+
 
 const debug = Debug('api:transaction:newTransaction')
 const prisma = new PrismaClient()
@@ -36,6 +38,9 @@ export default defineEventHandler(async(event)=>{
     }
 
     const nowDT = new Date()
+    // paidTrans is autogent nanoid for CASH only
+    const paidTrans = nanoid(20)
+
     const resultData = await prisma.transactions.create({
         data:{
             partnerCode: body.partnerCode,
@@ -44,13 +49,13 @@ export default defineEventHandler(async(event)=>{
             productSku: body.productSku,
             amount: body.amount ,
             paymentBy: body.paymentBy,
-            paymentRequest: body.paymenRequest,
-            paidNotify: body.paidNotify || "",
+            // paymentRequest: body.paymenRequest || "",
+            
             qrGenId: body.qrGenId || "",
             wallet: body.wallet || "",
             status: body.status || "PAID",
             jobStart: nowDT ,   
-            jobRemain: body.jobRemain
+            jobRemain: body.jobRemain,
         }
     })
 
